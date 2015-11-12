@@ -54,6 +54,7 @@ public class MapEntityTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testMapEntity() throws Exception {
 		createSet(100);
 		String query = "select * from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity order by value2";
@@ -71,6 +72,7 @@ public class MapEntityTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testMapEntityAdditionalField() throws Exception {
 		createSet(100);
 		String query = "select cluster, " +

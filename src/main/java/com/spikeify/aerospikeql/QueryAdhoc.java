@@ -89,6 +89,7 @@ class QueryAdhoc<T> implements Query<T> {
 
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public ResultsType asType(Class<T> clazz) {
 		if (clazz != null) {
 			query = queryUtils.queryTransformation(clazz, query);

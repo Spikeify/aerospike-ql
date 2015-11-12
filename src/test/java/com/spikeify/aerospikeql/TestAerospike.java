@@ -6,10 +6,10 @@ import com.spikeify.SpikeifyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Initialization of Aerospike database connection ...
@@ -41,7 +41,11 @@ public class TestAerospike {
 
 			log.info("Aerospike default namespace: " + DEFAULT_NAMESPACE);
 
-			List<Host> hostsData = hosts.entrySet().stream().map(stringIntegerEntry -> new Host(stringIntegerEntry.getKey(), stringIntegerEntry.getValue())).collect(Collectors.toList());
+			List<Host> hostsData = new ArrayList<>();
+			for (Map.Entry<String, Integer> stringIntegerEntry : hosts.entrySet()) {
+				hostsData.add(new Host(stringIntegerEntry.getKey(), stringIntegerEntry.getValue()));
+			}
+
 			SpikeifyService.globalConfig(DEFAULT_NAMESPACE, hostsData.toArray(new Host[hostsData.size()]));
 
 			log.info("Aerospike configured.");

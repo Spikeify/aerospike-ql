@@ -37,7 +37,7 @@ public class ConditionProcessor {
 		}
 
 		protected Builder parseStatement() {
-			this.condition = fc.parseStatement(condition, new HashSet<>());
+			this.condition = fc.parseStatement(condition, new HashSet<String>());
 			return this;
 		}
 

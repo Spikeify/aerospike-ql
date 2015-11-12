@@ -110,7 +110,7 @@ public class QueryUtils {
 	}
 
 
-	public String queryTransformation(Class clazz, String query) {
+	public String queryTransformation(final Class clazz, String query) {
 		log.info("query before transformation: {}", query);
 		query = query.trim().replaceAll(" +", " ");
 
