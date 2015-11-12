@@ -1,0 +1,223 @@
+package com.spikeify.aerospikeql.execute;
+
+import com.aerospike.client.AerospikeException;
+import com.aerospike.client.query.ResultSet;
+import com.spikeify.aerospikeql.common.Definitions;
+import com.spikeify.aerospikeql.parse.QueryFields;
+import com.spikeify.aerospikeql.parse.fields.HavingField;
+import com.spikeify.aerospikeql.parse.fields.OrderField;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+/**
+ * Created by roman on 17/08/15.
+ * <p/>
+ * Retrieve a ResultsMap data structure (ResultsSet and QueryDiagnostics)
+ */
+
+public class RetrieveResults {
+
+	public static ResultsMap retrieve(QueryFields queryFields, ResultSet rs, long overallStart) {
+		Map<String, Object> diagnostic = null;
+		List<Map<String, Object>> resultList = new ArrayList<>();
+		boolean groupedResults = queryFields.getGroupList().size() > 0;
+		boolean orderedResults = queryFields.getOrderFields().getOrderList().size() > 0;
+		HavingField having = queryFields.getHavingField();
+
+		//set having expression
+		if (queryFields.getHavingField().getFields().size() > 0)
+			having.setExpression(overallStart * 1000);
+
+		try {
+			while (rs.next()) {
+				Object result = rs.getObject();
+
+				if (groupedResults) { //all rows are in a single hash map
+					diagnostic = aggregationResultsList(result, resultList, having, queryFields.getAverages());
+
+				} else { //results come in separated hash maps. This are queries without group by statements
+					diagnostic = basicResultsList(result, resultList, queryFields.getAverages());
+					if (queryFields.getLimit() == resultList.size()) {
+						break;
+					}
+				}
+			}
+		} catch (AerospikeException e) {
+			e.printStackTrace();
+		} finally {
+			if (!(rs == null))
+				rs.close();
+		}
+
+		if (orderedResults) {
+			sortElements(resultList, queryFields.getOrderFields());
+		}
+
+		if (diagnostic == null) { //without group by statements
+			diagnostic = new HashMap<>();
+			diagnostic.put("count", resultList.size());
+		}
+
+		if (queryFields.getLimit() != -1) { //limit statements
+			if (resultList.size() > queryFields.getLimit()) {
+				resultList = resultList.subList(0, queryFields.getLimit());
+			}
+		}
+
+		//remove fields that are not in select statements and set correct order to field.
+		List<String> selectFields = queryFields.getSelectField().getSelectList();
+		if (!Definitions.isSelectAll(selectFields)) {
+			for (int i = 0; i < resultList.size(); i++) {
+				resultList.set(i, convertMapToSortedMap(resultList.get(i), queryFields.getSelectField().getAliases()));
+			}
+		}
+
+		long overallEnd = System.currentTimeMillis();
+		long executionTime = overallEnd - overallStart;
+		QueryDiagnostics queryDiagnostics = new QueryDiagnostics(overallStart, overallEnd, executionTime, (long) resultList.size(), new Long(diagnostic.get("count").toString()), (long) queryFields.getQueriedColumns().size());
+
+
+		return new ResultsMap(resultList, queryDiagnostics);
+
+	}
+
+	private static Map<String, Object> basicResultsList(Object result, List<Map<String, Object>> resultList, List<String> averageFields) {
+		//results come in separated hash maps. This are queries without group by statements
+		Map<String, Object> hm = (Map<String, Object>) result;
+		Map<String, Object> diagnostic = null;
+		if (hm.size() > 0) {
+			calculateDistinctCounters(hm);
+			calculateAverages(averageFields, hm);
+			replaceLuaLimitValues(hm);
+			if (hm.containsKey("sys_")) {
+				diagnostic = (HashMap<String, Object>) hm.remove("sys_");
+			}
+
+			resultList.add(hm);
+		}
+		return diagnostic;
+	}
+
+	private static Map<String, Object> aggregationResultsList(Object result, List<Map<String, Object>> resultList, HavingField having, List<String> averageFields) {
+		//all rows are in a single hash map
+		Map<String, Map<String, Object>> hm = (Map<String, Map<String, Object>>) result;
+		Iterator<Map.Entry<String, Map<String, Object>>> iterator = hm.entrySet().iterator();
+		Map<String, Object> diagnostic = null;
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, Map<String, Object>> entry = iterator.next();
+
+			if (entry.getKey().equals("sys_")) {
+				diagnostic = entry.getValue();
+
+			} else {
+				Map<String, Object> values = entry.getValue();
+				calculateDistinctCounters(values);
+				calculateAverages(averageFields, values);
+				replaceLuaLimitValues(values);
+
+				if (evaluateHavingStatement(having, values)) {
+					resultList.add(values);
+				}
+			}
+
+			iterator.remove();
+		}
+
+		return diagnostic;
+	}
+
+	private static Map<String, Object> convertMapToSortedMap(Map<String, Object> unsortedMap, List<String> fields) {
+		Map<String, Object> sortedMap = new LinkedHashMap<>();
+
+		for (String field : fields) {
+			sortedMap.put(field, unsortedMap.get(field));
+		}
+		return sortedMap;
+
+	}
+
+	/**
+	 * having statements is evaluated by EvalEx. This method sets variables in having statements with values.
+	 */
+	private static boolean evaluateHavingStatement(HavingField having, Map<String, Object> hm) {
+		if (having.getFields().size() > 0) {
+			for (String field : having.getFields()) {
+				if (hm.get(field) == null) {
+					return false;
+				}
+				having.getExpression().and(field, new BigDecimal(hm.get(field).toString()));
+			}
+			return having.getExpression().eval().intValue() == 1;
+		}
+		return true;
+	}
+
+	private static void replaceLuaLimitValues(Map<String, Object> values) {
+		Long minLong = new Long(Definitions.LuaValues.Max.value);
+		Long maxLong = new Long(Definitions.LuaValues.Min.value);
+		for (String subKey : values.keySet()) {
+			if (!subKey.equals("sys_") && values.get(subKey) != null && (values.get(subKey).equals(minLong) || values.get(subKey).equals(maxLong))) {
+				values.put(subKey, null);
+			}
+		}
+	}
+
+	/**
+	 * takes a size of a hash map with distinct values.
+	 */
+	private static void calculateDistinctCounters(Map<String, Object> values) {
+		for (String subKey : values.keySet()) {
+			if (!subKey.equals("sys_") && values.get(subKey) instanceof HashMap) {
+				HashMap<Object, Object> subCounter = (HashMap<Object, Object>) values.get(subKey);
+				values.put(subKey, (long) subCounter.size());
+			}
+		}
+	}
+
+	/**
+	 * calculate averages for fields
+	 *
+	 * @param averageFields - field names to calculate averages
+	 * @param hm            - values
+	 */
+	private static void calculateAverages(List<String> averageFields, Map<String, Object> hm) {
+		if (averageFields.size() > 0) {
+			for (String fieldAvg : averageFields) {
+				Long counter = (Long) hm.remove(fieldAvg + "_count_");
+				counter = counter != 0 ? counter : 1;
+				hm.put(fieldAvg, (Long) hm.get(fieldAvg) * 1.0 / counter);
+			}
+		}
+	}
+
+	/**
+	 * sort result list
+	 */
+	private static void sortElements(List<Map<String, Object>> list, final OrderField orderField) {
+		final List<String> orderList = orderField.getOrderList();
+		;
+
+		Collections.sort(list, new Comparator<Map<String, Object>>() {
+			public int compare(Map<String, Object> one, Map<String, Object> two) {
+				String first, second;
+				int sortOrder;
+
+				for (String key : orderList) {
+					sortOrder = orderField.getOrderDirection().get(key);
+					first = one != null && one.containsKey(key) && one.get(key) != null ? one.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
+					second = two != null && two.containsKey(key) && two.get(key) != null ? two.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
+
+					if (one != null && one.containsKey(key) && one.get(key) instanceof String)
+						return first.compareTo(second) * orderField.getOrderDirection().get(key);
+					else if (!first.equals(second))
+						return new BigDecimal(first).compareTo(new BigDecimal(second)) * orderField.getOrderDirection().get(key);
+
+				}
+				return 0;
+			}
+		});
+	}
+
+}
