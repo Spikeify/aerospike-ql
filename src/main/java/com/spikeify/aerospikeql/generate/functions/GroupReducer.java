@@ -7,7 +7,7 @@ import com.spikeify.aerospikeql.parse.fields.statements.Statement;
 
 /**
  * Created by roman on 17/07/15.
- * <p/>
+
  * * Logic for reducer code in lua script
  */
 public class GroupReducer extends Function {

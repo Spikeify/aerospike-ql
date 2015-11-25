@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.execute;
 
 /**
  * Created by roman on 17/08/15.
- * <p/>
+
  * Query runtime diagnostics
  */
 public class QueryDiagnostics {

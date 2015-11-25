@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 16/07/15.
- * <p/>
+
  * Data structure with fields of SQL query.
  */
 public class QueryFields {
@@ -167,7 +167,7 @@ public class QueryFields {
 	/**
 	 * invoked after fields are set
 	 *
-	 * @throws QueryParserException
+	 * @throws QueryParserException - sect field is not in group by statement
 	 */
 
 	public void postProcess() throws QueryParserException {

@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  * Created by roman on 17/08/15.
- * <p/>
+
  * Retrieve a ResultsMap data structure (ResultsSet and QueryDiagnostics)
  */
 

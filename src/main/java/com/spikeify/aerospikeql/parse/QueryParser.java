@@ -10,7 +10,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 
 /**
  * Created by roman on 16/07/15.
- * <p/>
+
  * Parses all fields of SQL query and stores them in Query fields data structure.
  */
 public class QueryParser {

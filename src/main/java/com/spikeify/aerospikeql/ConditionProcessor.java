@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * Created by sasa on 18/08/15.
- * <p/>
+
  * parses runtime condition that is injected instead of condition()
  */
 public class ConditionProcessor {

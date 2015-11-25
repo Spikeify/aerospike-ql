@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.generate.functions;
 
 /**
  * Created by roman on 16/07/15.
- * <p/>
+
  * Top level defines main function that wraps all other function in lua script.
  */
 public class TopLevel extends Function {

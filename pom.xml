@@ -41,7 +41,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.encoding>UTF-8</project.encoding>
         <project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
-        <version.spikeify>[0.2.14, 0.3)</version.spikeify>
+        <version.spikeify>0.2.14</version.spikeify>
         <version.log4j>2.4.1</version.log4j>
         <version.jsqlparser>0.9.4</version.jsqlparser>
         <version.evalEx>1.1</version.evalEx>

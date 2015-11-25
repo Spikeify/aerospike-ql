@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 17/07/15.
- * <p/>
+
  * Definitions contains constants and function names.
  */
 public class Definitions {

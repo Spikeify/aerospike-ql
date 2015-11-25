@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 24/07/15.
- * <p/>
+
  * Logic for transformation functions (DATEDIFF, etc.).
  */
 public class Transformation extends Function {

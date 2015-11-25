@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.parse.fields.statements;
 
 /**
  * Created by roman on 09/08/15.
- * <p/>
+
  * Basic field is a field in select statements. E.g. select timestamp
  */
 public class BasicStatement implements Statement {

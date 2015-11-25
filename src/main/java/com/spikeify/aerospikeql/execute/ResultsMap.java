@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Created by roman on 17/08/15.
- * <p/>
+
  * Data structure for Result set and query diagnostics
  */
 public class ResultsMap {

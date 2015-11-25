@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Created by roman on 22/07/15.
- * <p/>
+
  * this class sets order direction (asc, desc) of fields in ORDER BY statements
  */
 

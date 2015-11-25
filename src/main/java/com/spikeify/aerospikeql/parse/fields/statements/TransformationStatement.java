@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.parse.fields.statements;
 
 /**
  * Created by roman on 09/08/15.
- * <p/>
+
  * TransformationStatement is a field in select statements that makes a transformation on a field. E.g. select day(timestamp)
  */
 public class TransformationStatement implements Statement {

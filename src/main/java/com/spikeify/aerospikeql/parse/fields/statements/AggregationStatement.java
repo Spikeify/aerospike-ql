@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.parse.fields.statements;
 
 /**
  * Created by roman on 03/08/15.
- * <p/>
+
  * AggregationStatement is a field in select statements that aggregates a field. E.g. select sum(timestamp)
  */
 public class AggregationStatement implements Statement {

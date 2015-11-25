@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Created by roman on 07/08/15.
- * <p/>
+
  * HavingField is used to parse conditions of having field
  */
 public class HavingField {
@@ -29,6 +29,8 @@ public class HavingField {
 
 	/**
 	 * set fields that are in having statements
+	 *
+	 * @param aliases - list of aliases
 	 */
 
 	public void setFields(List<String> aliases) {

@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 17/07/15.
- * <p/>
+
  * Select field data structure is a sub structure of query statements.
- * <p/>
+
  * Select statements can contain statements, field transformations, field aggregations.
  */
 public class SelectField {
@@ -29,7 +29,7 @@ public class SelectField {
 	/**
 	 * Split every select field on AS and set aliases
 	 *
-	 * @throws QueryParserException
+	 * @throws QueryParserException - alias has incorrect name
 	 */
 	public void setAliases() throws QueryParserException {
 		List<String> newSelectList = new ArrayList<>();
@@ -68,7 +68,7 @@ public class SelectField {
 
 	/**
 	 * classify statements in select statements. We have 3 types of statements: basic, transformation and aggregation.
-	 * <p/>
+
 	 * basic: select timestamp
 	 * transformation: select hour(timestamp) as hour
 	 * aggregation: sum(duration) as sumDuration

@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 /**
  * Created by roman on 16/07/15.
- * <p/>
+
  * CodeGenerator defines a pipeline for generating code
  */
 public class CodeGenerator {

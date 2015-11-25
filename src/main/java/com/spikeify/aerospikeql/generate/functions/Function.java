@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 16/07/15.
- * <p/>
+
  * abstract class defines common fields and methods for other lua functions.
  */
 public class Function {
@@ -125,6 +125,8 @@ public class Function {
 
 	/**
 	 * Create an indentation with tabs
+	 * @param level - level of intendation
+	 * @return - string with tab intendations
 	 */
 	protected String getTabs(int level) {
 		String tabs = "";
@@ -255,7 +257,7 @@ public class Function {
 
 	/**
 	 * @param replaceQuotesMapping - is empty on input and it stores {MATCH1: 'event/start ...}
-	 * @param statement            - example: field1 > field2
+	 * @param statement            - example: field1 is gt field2
 	 * @return - processed statements
 	 */
 
@@ -286,7 +288,7 @@ public class Function {
 	 * replace (topRec[timestamp] or 0) == (topRec[localtimestamp] or 0) with topRec[timestamp] == topRec[localtimestamp]
 	 *
 	 * @param replaceQuotesMapping it stores {MATCH1: 'event/start ...}
-	 * @param statement            example: field1 > field2
+	 * @param statement            example: field1 is gt field2
 	 * @return postprocessed statements
 	 */
 
