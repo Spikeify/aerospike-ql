@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 
 public class BasicFunctionsTest {
 
-
 	Spikeify sfy;
 
 	AerospikeQl aerospikeQl;
@@ -54,6 +53,18 @@ public class BasicFunctionsTest {
 		entity.value2 = i + 1;
 		entity.cluster = null;
 		sfy.create(entity).now();
+	}
+
+	private class Entity {
+		@UserKey
+		public String key;
+
+		public Integer value;
+
+		public Integer value2;
+
+		public Integer cluster;
+
 	}
 
 	@Test
@@ -135,18 +146,5 @@ public class BasicFunctionsTest {
 			assertEquals(4, map.size());
 		}
 	}
-
-	private class Entity {
-		@UserKey
-		public String key;
-
-		public Integer value;
-
-		public Integer value2;
-
-		public Integer cluster;
-
-	}
-
 
 }

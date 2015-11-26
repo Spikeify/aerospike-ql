@@ -103,7 +103,7 @@ class QueryAdhoc implements Query {
 					T instance = createNewInstance(clazz);
 					if (instance == null) {
 						log.error("class " + clazz + " should have default constructor and should be static if inner class.");
-						break;
+						return null;
 					}
 					ClassMapper<T> classMapper = new ClassMapper<>(clazz);
 					classMapper.setFieldValues(instance, map);

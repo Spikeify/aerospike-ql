@@ -143,9 +143,16 @@ public class Transformation extends Function {
 	private String addStringContainsLogic() {
 		String generatedCode = "";
 		String tabs1 = getTabs(level + 1);
-		generatedCode += tabs1 + "return " + nameArg1 + " and string.match(" + nameArg1 + ", " + nameArg2 + ") == " + nameArg2 + " or false \n";
+		generatedCode += tabs1 + "return " + nameArg1 + " and string.match(" + nameArg1 + ", " + nameArg2 + ") ~= nil or false \n";
 		return generatedCode;
 	}
+
+//	private String addStringContainsCaseInsensitiveLogic() {
+//		String generatedCode = "";
+//		String tabs1 = getTabs(level + 1);
+//		generatedCode += tabs1 + "return " + nameArg1 + " and string.match(string.lower(" + nameArg1 + "), string.lower(" + nameArg2 + ")) ~= nil or false \n";
+//		return generatedCode;
+//	}
 
 	private String addListRetrieveLogic() {
 		String generatedCode = "";
