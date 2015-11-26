@@ -19,10 +19,11 @@ import java.util.*;
 public class RetrieveResults {
 
 	public static ResultsMap retrieve(QueryFields queryFields, ResultSet rs, long overallStart) {
-		Map<String, Object> diagnostic = null;
-		List<Map<String, Object>> resultList = new ArrayList<>();
 		boolean groupedResults = queryFields.getGroupList().size() > 0;
 		boolean orderedResults = queryFields.getOrderFields().getOrderList().size() > 0;
+		Map<String, Object> diagnostic = null;
+		List<Map<String, Object>> resultList = new ArrayList<>();
+		Set<String> distinctCounters = queryFields.getSelectField().getDistinctCounters();
 		HavingField having = queryFields.getHavingField();
 
 		//set having expression
@@ -34,10 +35,10 @@ public class RetrieveResults {
 				Object result = rs.getObject();
 
 				if (groupedResults) { //all rows are in a single hash map
-					diagnostic = aggregationResultsList(result, resultList, having, queryFields.getAverages());
+					diagnostic = aggregationResultsList(result, resultList, having, queryFields.getAverages(), distinctCounters);
 
 				} else { //results come in separated hash maps. This are queries without group by statements
-					diagnostic = basicResultsList(result, resultList, queryFields.getAverages());
+					diagnostic = basicResultsList(result, resultList, queryFields.getAverages(), distinctCounters);
 					if (queryFields.getLimit() == resultList.size()) {
 						break;
 					}
@@ -82,12 +83,12 @@ public class RetrieveResults {
 
 	}
 
-	private static Map<String, Object> basicResultsList(Object result, List<Map<String, Object>> resultList, List<String> averageFields) {
+	private static Map<String, Object> basicResultsList(Object result, List<Map<String, Object>> resultList, List<String> averageFields, Set<String> distinctCounters) {
 		//results come in separated hash maps. This are queries without group by statements
 		Map<String, Object> hm = (Map<String, Object>) result;
 		Map<String, Object> diagnostic = null;
 		if (hm.size() > 0) {
-			calculateDistinctCounters(hm);
+			calculateDistinctCounters(hm, distinctCounters);
 			calculateAverages(averageFields, hm);
 			replaceLuaLimitValues(hm);
 			if (hm.containsKey("sys_")) {
@@ -99,7 +100,7 @@ public class RetrieveResults {
 		return diagnostic;
 	}
 
-	private static Map<String, Object> aggregationResultsList(Object result, List<Map<String, Object>> resultList, HavingField having, List<String> averageFields) {
+	private static Map<String, Object> aggregationResultsList(Object result, List<Map<String, Object>> resultList, HavingField having, List<String> averageFields, Set<String> distinctCounters) {
 		//all rows are in a single hash map
 		Map<String, Map<String, Object>> hm = (Map<String, Map<String, Object>>) result;
 		Iterator<Map.Entry<String, Map<String, Object>>> iterator = hm.entrySet().iterator();
@@ -113,7 +114,7 @@ public class RetrieveResults {
 
 			} else {
 				Map<String, Object> values = entry.getValue();
-				calculateDistinctCounters(values);
+				calculateDistinctCounters(values, distinctCounters);
 				calculateAverages(averageFields, values);
 				replaceLuaLimitValues(values);
 
@@ -167,11 +168,10 @@ public class RetrieveResults {
 	/**
 	 * takes a size of a hash map with distinct values.
 	 */
-	private static void calculateDistinctCounters(Map<String, Object> values) {
+	private static void calculateDistinctCounters(Map<String, Object> values, Set<String> distinctCounters) {
 		for (String subKey : values.keySet()) {
-			if (!subKey.equals("sys_") && values.get(subKey) instanceof HashMap) {
-				HashMap<Object, Object> subCounter = (HashMap<Object, Object>) values.get(subKey);
-				values.put(subKey, (long) subCounter.size());
+			if (!subKey.equals("sys_") && distinctCounters.contains(subKey) && values.get(subKey) instanceof HashMap) {
+				values.put(subKey, (long) ((HashMap) values.get(subKey)).size());
 			}
 		}
 	}

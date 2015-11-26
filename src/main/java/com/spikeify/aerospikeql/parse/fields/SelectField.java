@@ -8,7 +8,9 @@ import com.spikeify.aerospikeql.parse.fields.statements.Statement;
 import com.spikeify.aerospikeql.parse.fields.statements.TransformationStatement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +26,7 @@ public class SelectField {
 	private final List<Statement> statements = new ArrayList<>(); //main data structure with select statements
 	private final List<String> aliases = new ArrayList<>(); //aliases of statements that are print out
 	private List<String> selectList = new ArrayList<>(); //helper data structure:  it is used to fill statements data structure
+	private Set<String> distinctCounters = new HashSet<>();
 	private boolean aggregations = false; //if query contains aggregations
 
 	/**
@@ -106,6 +109,7 @@ public class SelectField {
 								match = matcherDistinct.group(1);
 								match = evaluateCondition(match, index);
 
+								distinctCounters.add(aliases.get(index));
 								statements.add(new AggregationStatement.AggregationFieldBuilder(aliases.get(index), operation).setField(match).createAggregationField());
 							} else if (matcherIfElse.find()) {
 								//if else aggregation
@@ -282,4 +286,7 @@ public class SelectField {
 		return selectList;
 	}
 
+	public Set<String> getDistinctCounters() {
+		return distinctCounters;
+	}
 }
