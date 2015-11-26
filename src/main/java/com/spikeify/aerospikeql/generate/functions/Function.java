@@ -155,7 +155,12 @@ public class Function {
 		}
 
 		if (item.equals("") || item.matches(Definitions.defaultQuotesReplacementName + "\\d+")) {
-			return item; //item empty, condition() or MATCH1
+			if (fields.length > 1) {
+				item = fields[1];
+				fields[1] = "";
+			} else {
+				return item;
+			}
 		}
 
 		if (Definitions.transformationsOperators.contains(item.toUpperCase())) {
@@ -250,8 +255,11 @@ public class Function {
 
 	private String arrayToString(String[] stringArray, int first) {
 		String newString = "";
-		for (int i = first; i < stringArray.length; i++)
-			newString += stringArray[i];
+		for (int i = first; i < stringArray.length; i++) {
+			if (stringArray[i].length() > 0) {
+				newString += stringArray[i];
+			}
+		}
 		return newString;
 	}
 

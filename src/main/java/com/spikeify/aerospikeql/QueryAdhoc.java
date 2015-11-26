@@ -5,6 +5,7 @@ import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
+import com.spikeify.ClassMapper;
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.execute.ResultsList;
 import com.spikeify.aerospikeql.execute.ResultsMap;
@@ -106,9 +107,8 @@ class QueryAdhoc<T> implements Query<T> {
 						break;
 
 					} else {
-						for (Map.Entry<String, Object> entry : map.entrySet()) {
-							queryUtils.set(instance, entry.getKey(), entry.getValue());
-						}
+						ClassMapper classMapper = new ClassMapper(clazz);
+						classMapper.setFieldValues(instance, map);
 						resultsType.add(instance);
 					}
 				}

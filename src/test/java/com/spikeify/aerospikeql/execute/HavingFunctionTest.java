@@ -61,7 +61,8 @@ public class HavingFunctionTest {
 						"count(*) as counter " +
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"group by cluster " +
-						"having avgValue > 50";
+						"having avgValue > 50 " +
+						"order by cluster asc";
 
 		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
 

@@ -38,7 +38,7 @@ public class MappingTest {
 	public void testSelectAllMapping() throws Exception {
 		String query = "select * from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity where veryLongNameForModulo > 10";
 		String transformedQuery = queryUtils.queryTransformation(Entity.class, query);
-		assertEquals("SELECT GENERATION() as generation, TTL() as expiration, mod, value, PRIMARY_KEY() as key from test.Entity where mod > 10", transformedQuery);
+		assertEquals("SELECT TTL() as expiration, GENERATION() as generation, PRIMARY_KEY() as key, mod, value from test.Entity where mod > 10", transformedQuery);
 
 	}
 

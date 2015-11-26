@@ -2,9 +2,7 @@ package com.spikeify.aerospikeql;
 
 import com.aerospike.client.Language;
 import com.aerospike.client.task.RegisterTask;
-import com.spikeify.FieldMapper;
-import com.spikeify.MapperUtils;
-import com.spikeify.Spikeify;
+import com.spikeify.*;
 import com.spikeify.aerospikeql.generate.CodeGenerator;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import com.spikeify.aerospikeql.parse.QueryParser;
@@ -15,9 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class QueryUtils {
 
@@ -114,7 +110,6 @@ public class QueryUtils {
 		log.info("query before transformation: {}", query);
 		query = query.trim().replaceAll(" +", " ");
 
-
 		Map<String, FieldMapper> fieldMappers = new HashMap<String, FieldMapper>() {{
 			put("PRIMARY_KEY()", MapperUtils.getUserKeyFieldMapper(clazz));
 			put("GENERATION()", MapperUtils.getGenerationFieldMapper(clazz));
@@ -126,13 +121,15 @@ public class QueryUtils {
 		if (query.toLowerCase().contains("select *")) {
 			selectAll = true;
 			Map<String, String> binMappings = MapperUtils.getBinMappings(clazz);
+			List<String> mappedFields = new ArrayList<>(binMappings.keySet());
 
 			for (Map.Entry<String, FieldMapper> fieldMapper : fieldMappers.entrySet()) {
 				if (fieldMapper.getValue() != null) {
-					binMappings.put(fieldMapper.getValue().getFieldName(), fieldMapper.getValue().getFieldName());
+					mappedFields.add(fieldMapper.getValue().getFieldName());
 				}
 			}
-			String bins = join(binMappings.keySet(), ", ");
+			Collections.sort(mappedFields);
+			String bins = join(mappedFields, ", ");
 			//process aerospike special fields
 			for (Map.Entry<String, FieldMapper> fieldMapper : fieldMappers.entrySet()) {
 				if (fieldMapper.getValue() != null) {
@@ -164,40 +161,14 @@ public class QueryUtils {
 		return query;
 	}
 
-	public String join(Set<String> set, String delimiter) {
+	public String join(List<String> fields, String delimiter) {
 		StringBuffer output = new StringBuffer();
-		for (String key : set) {
-			output.append(key + delimiter);
+		for (String field : fields) {
+			output.append(field + delimiter);
 		}
 		return output.substring(0, output.length() - delimiter.length());
 	}
 
-	public boolean set(Object object, String fieldName, Object fieldValue) {
-		Class<?> clazz = object.getClass();
-		while (clazz != null) {
-			try {
-				Field field = clazz.getDeclaredField(fieldName);
-				field.setAccessible(true);
-				if (fieldValue == null) {
-					field.set(object, null);
-				} else if (field.getType().getName().equals("java.lang.Integer")) {
-					field.set(object, new Integer(fieldValue.toString()));
-				} else if (field.getType().getName().equals("java.lang.Long")) {
-					field.set(object, new Long(fieldValue.toString()));
-				} else if (field.getType().getName().equals("java.lang.Double")) {
-					field.set(object, new Double(fieldValue.toString()));
-				} else if (field.getType().getName().equals("java.lang.String")) {
-					field.set(object, fieldValue.toString());
-				}
-				return true;
-			} catch (NoSuchFieldException e) {
-				clazz = clazz.getSuperclass();
-			} catch (Exception e) {
-				throw new IllegalStateException(e);
-			}
-		}
-		return false;
-	}
 
 	public Class<?> findEntity(String entitiesPackageName, String query) throws QueryParserException {
 		Class<?> clazz;
