@@ -90,8 +90,7 @@ class QueryAdhoc<T> implements Query<T> {
 
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public ResultsType asType(Class<T> clazz) {
+	public ResultsType<T> asType(Class<T> clazz) {
 		if (clazz != null) {
 			query = queryUtils.queryTransformation(clazz, query);
 
@@ -105,14 +104,12 @@ class QueryAdhoc<T> implements Query<T> {
 					if (instance == null) {
 						log.error("class " + clazz + " should have default constructor and should be static if inner class.");
 						break;
-
-					} else {
-						ClassMapper classMapper = new ClassMapper(clazz);
-						classMapper.setFieldValues(instance, map);
-						resultsType.add(instance);
 					}
+					ClassMapper<T> classMapper = new ClassMapper<>(clazz);
+					classMapper.setFieldValues(instance, map);
+					resultsType.add(instance);
 				}
-				return new ResultsType(resultsType, resultsMap.getQueryDiagnostics());
+				return new ResultsType<>(resultsType, resultsMap.getQueryDiagnostics());
 			}
 		}
 		return null;

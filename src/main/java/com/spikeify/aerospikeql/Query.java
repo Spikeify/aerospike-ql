@@ -20,5 +20,5 @@ public interface Query<T> {
 
 	ResultsList asList();
 
-	ResultsType asType(Class<T> clazz);
+	ResultsType<T> asType(Class<T> clazz);
 }
