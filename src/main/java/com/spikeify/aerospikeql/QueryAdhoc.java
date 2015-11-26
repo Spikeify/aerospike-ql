@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-class QueryAdhoc<T> implements Query<T> {
+class QueryAdhoc implements Query {
 
 	private static final Logger log = LoggerFactory.getLogger(QueryAdhoc.class);
 
@@ -90,7 +90,7 @@ class QueryAdhoc<T> implements Query<T> {
 
 
 	@Override
-	public ResultsType<T> asType(Class<T> clazz) {
+	public <T> ResultsType<T> asType(Class<T> clazz) {
 		if (clazz != null) {
 			query = queryUtils.queryTransformation(clazz, query);
 
@@ -115,7 +115,7 @@ class QueryAdhoc<T> implements Query<T> {
 		return null;
 	}
 
-	private T createNewInstance(Class<T> clazz) {
+	private <T> T createNewInstance(Class<T> clazz) {
 		T instance;
 		try {
 			instance = clazz.newInstance();

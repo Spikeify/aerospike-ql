@@ -6,7 +6,7 @@ import com.spikeify.aerospikeql.execute.ResultsList;
 import com.spikeify.aerospikeql.execute.ResultsMap;
 import com.spikeify.aerospikeql.execute.ResultsType;
 
-public interface Query<T> {
+public interface Query {
 
 	Query setFilters(Filter[] filters);
 
@@ -20,5 +20,5 @@ public interface Query<T> {
 
 	ResultsList asList();
 
-	ResultsType<T> asType(Class<T> clazz);
+	<T> ResultsType<T> asType(Class<T> clazz);
 }

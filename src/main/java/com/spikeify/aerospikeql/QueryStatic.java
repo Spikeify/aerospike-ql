@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static com.spikeify.aerospikeql.execute.RetrieveResults.retrieve;
 
-class QueryStatic<T> extends QueryAdhoc<T> implements Query<T> {
+class QueryStatic extends QueryAdhoc implements Query {
 	private String queryName;
 
 	public QueryStatic(Spikeify sfy,

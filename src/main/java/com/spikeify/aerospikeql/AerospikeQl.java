@@ -15,11 +15,11 @@ public class AerospikeQl {
 
 
 	public Query runAdhocQuery(String query) {
-		return new QueryAdhoc<>(sfy, queryUtils, query);
+		return new QueryAdhoc(sfy, queryUtils, query);
 	}
 
 	public Query runStaticQuery(String query, String queryName) {
-		return new QueryStatic<>(sfy, queryUtils, query, queryName);
+		return new QueryStatic(sfy, queryUtils, query, queryName);
 	}
 
 
