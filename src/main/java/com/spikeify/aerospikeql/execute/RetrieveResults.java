@@ -18,7 +18,17 @@ import java.util.*;
 
 public class RetrieveResults {
 
-	public static ResultsMap retrieve(QueryFields queryFields, ResultSet rs, long overallStart) {
+	private QueryFields queryFields;
+	private ResultSet rs;
+	private long overallStart;
+
+	public RetrieveResults(QueryFields queryFields, ResultSet rs, long overallStart) {
+		this.queryFields = queryFields;
+		this.rs = rs;
+		this.overallStart = overallStart;
+	}
+
+	public ResultsMap retrieve() {
 		boolean groupedResults = queryFields.getGroupList().size() > 0;
 		boolean orderedResults = queryFields.getOrderFields().getOrderList().size() > 0;
 		Map<String, Object> diagnostic = null;
@@ -83,7 +93,8 @@ public class RetrieveResults {
 
 	}
 
-	private static Map<String, Object> basicResultsList(Object result, List<Map<String, Object>> resultList, List<String> averageFields, Set<String> distinctCounters) {
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> basicResultsList(Object result, List<Map<String, Object>> resultList, List<String> averageFields, Set<String> distinctCounters) {
 		//results come in separated hash maps. This are queries without group by statements
 		Map<String, Object> hm = (Map<String, Object>) result;
 		Map<String, Object> diagnostic = null;
@@ -100,7 +111,8 @@ public class RetrieveResults {
 		return diagnostic;
 	}
 
-	private static Map<String, Object> aggregationResultsList(Object result, List<Map<String, Object>> resultList, HavingField having, List<String> averageFields, Set<String> distinctCounters) {
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> aggregationResultsList(Object result, List<Map<String, Object>> resultList, HavingField having, List<String> averageFields, Set<String> distinctCounters) {
 		//all rows are in a single hash map
 		Map<String, Map<String, Object>> hm = (Map<String, Map<String, Object>>) result;
 		Iterator<Map.Entry<String, Map<String, Object>>> iterator = hm.entrySet().iterator();
@@ -129,7 +141,7 @@ public class RetrieveResults {
 		return diagnostic;
 	}
 
-	private static Map<String, Object> convertMapToSortedMap(Map<String, Object> unsortedMap, List<String> fields) {
+	private Map<String, Object> convertMapToSortedMap(Map<String, Object> unsortedMap, List<String> fields) {
 		Map<String, Object> sortedMap = new LinkedHashMap<>();
 
 		for (String field : fields) {
@@ -142,7 +154,7 @@ public class RetrieveResults {
 	/**
 	 * having statements is evaluated by EvalEx. This method sets variables in having statements with values.
 	 */
-	private static boolean evaluateHavingStatement(HavingField having, Map<String, Object> hm) {
+	private boolean evaluateHavingStatement(HavingField having, Map<String, Object> hm) {
 		if (having.getFields().size() > 0) {
 			for (String field : having.getFields()) {
 				if (hm.get(field) == null) {
@@ -155,7 +167,7 @@ public class RetrieveResults {
 		return true;
 	}
 
-	private static void replaceLuaLimitValues(Map<String, Object> values) {
+	private void replaceLuaLimitValues(Map<String, Object> values) {
 		Long minLong = new Long(Definitions.LuaValues.Max.value);
 		Long maxLong = new Long(Definitions.LuaValues.Min.value);
 		for (String subKey : values.keySet()) {
@@ -168,7 +180,7 @@ public class RetrieveResults {
 	/**
 	 * takes a size of a hash map with distinct values.
 	 */
-	private static void calculateDistinctCounters(Map<String, Object> values, Set<String> distinctCounters) {
+	private void calculateDistinctCounters(Map<String, Object> values, Set<String> distinctCounters) {
 		for (String subKey : values.keySet()) {
 			if (!subKey.equals("sys_") && distinctCounters.contains(subKey) && values.get(subKey) instanceof HashMap) {
 				values.put(subKey, (long) ((HashMap) values.get(subKey)).size());
@@ -182,7 +194,7 @@ public class RetrieveResults {
 	 * @param averageFields - field names to calculate averages
 	 * @param hm            - values
 	 */
-	private static void calculateAverages(List<String> averageFields, Map<String, Object> hm) {
+	private void calculateAverages(List<String> averageFields, Map<String, Object> hm) {
 		if (averageFields.size() > 0) {
 			for (String fieldAvg : averageFields) {
 				Long counter = (Long) hm.remove(fieldAvg + "_count_");
@@ -195,7 +207,7 @@ public class RetrieveResults {
 	/**
 	 * sort result list
 	 */
-	private static void sortElements(List<Map<String, Object>> list, final OrderField orderField) {
+	private void sortElements(List<Map<String, Object>> list, final OrderField orderField) {
 		final List<String> orderList = orderField.getOrderList();
 		;
 

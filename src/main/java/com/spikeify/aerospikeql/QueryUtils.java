@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class QueryUtils {
@@ -105,10 +104,14 @@ public class QueryUtils {
 		sfy.getClient().removeUdf(null, udfName);
 	}
 
+	protected boolean isSelectAll(String query){
+		query = query.trim().replaceAll(" +", " ");
+		return query.toLowerCase().contains("select *");
+	}
+
 
 	public String queryTransformation(final Class clazz, String query) {
 		log.info("query before transformation: {}", query);
-		query = query.trim().replaceAll(" +", " ");
 
 		Map<String, FieldMapper> fieldMappers = new HashMap<String, FieldMapper>() {{
 			put("PRIMARY_KEY()", MapperUtils.getUserKeyFieldMapper(clazz));
@@ -118,7 +121,7 @@ public class QueryUtils {
 
 		//process select *
 		boolean selectAll = false;
-		if (query.toLowerCase().contains("select *")) {
+		if (isSelectAll(query)) {
 			selectAll = true;
 			Map<String, String> binMappings = MapperUtils.getBinMappings(clazz);
 			List<String> mappedFields = new ArrayList<>(binMappings.keySet());

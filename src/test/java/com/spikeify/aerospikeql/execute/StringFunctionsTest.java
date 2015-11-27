@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -86,6 +87,70 @@ public class StringFunctionsTest {
 //		assertEquals(1L, entityList.size());
 //		assertEquals("Abba", entityList.get(0).value1);
 //	}
+
+	@Test
+	public void testStringContains1(){
+		createSet();
+		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where STRING_CONTAINS(value1, 'bb') order by value1").asType(Entity.class).getResultsData();
+		assertEquals(1L, entityList.size());
+		assertEquals("Abba", entityList.get(0).value1);
+	}
+
+	@Test
+	public void testStringContains2(){
+		createSet();
+		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where STRING_CONTAINS(value1, 'ee') order by value1").asType(Entity.class).getResultsData();
+		assertEquals(1L, entityList.size());
+		assertEquals("Queens", entityList.get(0).value1);
+	}
+
+	@Test
+	public void testStringMatch1(){
+		createSet();
+		List<Map<String, Object>> resultsMap = aerospikeQl.runAdhocQuery("select STRING_MATCH(value1, 'Abba') as value1 from test.Entity order by value1 desc").asMap().getResultsData();
+		assertEquals(6L, resultsMap.size());
+		assertEquals("Abba", resultsMap.get(0).get("value1"));
+		for(int i=1; i<resultsMap.size(); i++){
+			assertEquals(null, resultsMap.get(i).get("value1"));
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -53,39 +54,6 @@ public class MapEntityTest {
 		sfy.create(entity).now();
 	}
 
-	@Test
-	@SuppressWarnings("unchecked")
-	public void testMapEntity() throws Exception {
-		createSet(100);
-		String query = "select * from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity order by value2";
-
-		ResultsType resultsType = aerospikeQl.runAdhocQuery(query).asType(Entity.class);
-		List<Entity> entities = resultsType.getResultsData();
-		assertEquals(101, entities.size());
-		Integer count = 2;
-		for (Entity entity : entities) {
-			if (count < 101) {
-				assertEquals(count++, entity.value2);
-			}
-		}
-
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void testMapEntityAdditionalField() throws Exception {
-		createSet(100);
-		String query = "select cluster, " +
-						"avg(value) as avgValue from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
-						"group by cluster";
-
-		ResultsType resultsType = aerospikeQl.runAdhocQuery(query).asType(Entity.class);
-		List<Entity> entities = resultsType.getResultsData();
-		assertEquals(5, entities.size());
-
-
-	}
-
 	public static class Entity {
 
 		@UserKey
@@ -98,6 +66,38 @@ public class MapEntityTest {
 		}
 
 	}
+
+	@Test
+	public void testMapEntity() throws Exception {
+		createSet(100);
+		String query = "select * from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity order by value2";
+
+		ResultsType<Entity> resultsType = aerospikeQl.runAdhocQuery(query).asType(Entity.class);
+		List<Entity> entities = resultsType.getResultsData();
+		assertEquals(101, entities.size());
+		Integer count = 2;
+		for (Entity entity : entities) {
+			if (count < 101) {
+				assertEquals(count++, entity.value2);
+			}
+		}
+
+	}
+
+	@Test
+	public void testMapEntityAdditionalField() throws Exception {
+		createSet(100);
+		String query = "select cluster, " +
+						"avg(value) as avgValue from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"group by cluster";
+
+		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = resultsMap.getResultsData();
+		assertEquals(5, resultsList.size());
+
+
+	}
+
 
 
 }

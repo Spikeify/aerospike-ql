@@ -5,11 +5,10 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.execute.ResultsMap;
+import com.spikeify.aerospikeql.execute.RetrieveResults;
 import com.spikeify.aerospikeql.parse.QueryFields;
 
 import java.util.UUID;
-
-import static com.spikeify.aerospikeql.execute.RetrieveResults.retrieve;
 
 class QueryStatic extends QueryAdhoc implements Query {
 	private String queryName;
@@ -53,8 +52,9 @@ class QueryStatic extends QueryAdhoc implements Query {
 				}
 
 				ResultSet rs = sfy.getClient().queryAggregate(queryPolicy, statement, queryName, "main", Value.get(currentTimeMillis), Value.get(conditionInjection)); //pass parameters to lua script
+				RetrieveResults retrieveResults = new RetrieveResults(queryFields, rs, currentTimeMillis);
+				return retrieveResults.retrieve();
 
-				return retrieve(queryFields, rs, currentTimeMillis);
 			}
 		}
 		return null;

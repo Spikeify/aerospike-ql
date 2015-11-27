@@ -91,6 +91,11 @@ class QueryAdhoc implements Query {
 
 	@Override
 	public <T> ResultsType<T> asType(Class<T> clazz) {
+		if(!queryUtils.isSelectAll(query)){
+			log.error("As type method can be only used with SELECT * queries.");
+			return null;
+		}
+
 		if (clazz != null) {
 			query = queryUtils.queryTransformation(clazz, query);
 
@@ -155,7 +160,8 @@ class QueryAdhoc implements Query {
 				}
 
 				ResultSet rs = sfy.getClient().queryAggregate(queryPolicy, statement, queryName, "main", Value.get(currentTimeMillis), Value.get(conditionInjection)); //pass parameters to lua script
-				ResultsMap resultsMap = RetrieveResults.retrieve(queryFields, rs, currentTimeMillis);
+				RetrieveResults retrieveResults = new RetrieveResults(queryFields, rs, currentTimeMillis);
+				ResultsMap resultsMap = retrieveResults.retrieve();
 
 				queryUtils.removeUdf(queryName);
 				return resultsMap;
