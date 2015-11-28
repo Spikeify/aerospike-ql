@@ -74,7 +74,7 @@ public class Definitions {
 	public static final List<String> doubleFieldTransformations = new ArrayList<String>() {{
 		add("DATEDIFF_MS");
 		add("DATEDIFF");
-		add("JSON_EXTRACT_SCALAR");
+		add("MAP_RETRIEVE");
 		add("LIST_CONTAINS");
 		add("LIST_MATCH");
 		add("LIST_RETRIEVE");

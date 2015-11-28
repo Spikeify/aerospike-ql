@@ -84,8 +84,8 @@ public class Transformation extends Function {
 				generatedCode = addDateDiffLogic();
 			} else if (functionName.equalsIgnoreCase("DATEDIFF_MS")) {
 				generatedCode = addDateDiffMSLogic();
-			} else if (functionName.equalsIgnoreCase("JSON_EXTRACT_SCALAR")) {
-				generatedCode = addJsonExtractScalarLogic();
+			} else if (functionName.equalsIgnoreCase("MAP_RETRIEVE")) {
+				generatedCode = addMapRetrieveLogic();
 			} else if (functionName.equalsIgnoreCase("REGEXP_MATCH")) {
 				generatedCode = addRegexpLogic();
 			} else if (functionName.equalsIgnoreCase("IFNULL")) {
@@ -384,7 +384,7 @@ public class Transformation extends Function {
 	}
 
 
-	private String addJsonExtractScalarLogic() {
+	private String addMapRetrieveLogic() {
 		String generatedCode = "";
 		String tabs = getTabs(level + 1);
 		generatedCode += tabs + "return " + nameArg1 + "[" + nameArg2 + "]\n";
