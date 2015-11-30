@@ -73,38 +73,38 @@ public class MapperTest {
 
 	@Test
 	public void testSelectMixed() throws Exception {
-		String query = "select UTC_MS_TO_HOUR(JSON_EXTRACT_SCALAR(parameters,'localTimestamp')) as timestamp, " +
+		String query = "select UTC_MS_TO_HOUR(MAP_RETRIEVE(parameters,'localTimestamp')) as timestamp, " +
 						"MIN(UTC_MS_TO_DAY(timestamp)) as reported_time, " +
 						"hostAppId, " +
 						"hostPartnerId, " +
 						"country, " +
 						"platform, " +
 						"type," +
-						"JSON_EXTRACT_SCALAR(parameters,'productID') as productId, " +
-						"JSON_EXTRACT_SCALAR(parameters,'transactionID') as transactionId," +
-						"JSON_EXTRACT_SCALAR(parameters,'priceLocale') as priceLocale," +
-						"SUM(INTEGER(JSON_EXTRACT_SCALAR(parameters,'quantity'))) as quantity," +
-						"SUM(FLOAT(JSON_EXTRACT_SCALAR(parameters,'price'))) as price," +
-						"SUM(FLOAT(JSON_EXTRACT_SCALAR(parameters,'priceUsd'))) as priceUsd," +
+						"MAP_RETRIEVE(parameters,'productID') as productId, " +
+						"MAP_RETRIEVE(parameters,'transactionID') as transactionId," +
+						"MAP_RETRIEVE(parameters,'priceLocale') as priceLocale," +
+						"SUM(INTEGER(MAP_RETRIEVE(parameters,'quantity'))) as quantity," +
+						"SUM(FLOAT(MAP_RETRIEVE(parameters,'price'))) as price," +
+						"SUM(FLOAT(MAP_RETRIEVE(parameters,'priceUsd'))) as priceUsd," +
 						"COUNT(1) as count\n from ns.st";
 
 		QueryFields queryFields = QueryParser.parseQuery(query);
 		Mapper mapper = Mapper.factory(queryFields);
 
 		String expectedCode = "\t\tlocal tuple = map()\n" +
-						"\t\ttuple[\"timestamp\"] = utc_ms_to_hour(json_extract_scalar(topRec[\"parameters\"] , 'localTimestamp'))\n" +
+						"\t\ttuple[\"timestamp\"] = utc_ms_to_hour(map_retrieve(topRec[\"parameters\"] , 'localTimestamp'))\n" +
 						"\t\ttuple[\"reported_time_timestamp\"] = utc_ms_to_day(topRec[\"timestamp\"])\n" +
 						"\t\ttuple[\"hostAppId\"] = topRec[\"hostAppId\"]\n" +
 						"\t\ttuple[\"hostPartnerId\"] = topRec[\"hostPartnerId\"]\n" +
 						"\t\ttuple[\"country\"] = topRec[\"country\"]\n" +
 						"\t\ttuple[\"platform\"] = topRec[\"platform\"]\n" +
 						"\t\ttuple[\"type\"] = topRec[\"type\"]\n" +
-						"\t\ttuple[\"productId\"] = json_extract_scalar(topRec[\"parameters\"] , 'productID')\n" +
-						"\t\ttuple[\"transactionId\"] = json_extract_scalar(topRec[\"parameters\"] , 'transactionID')\n" +
-						"\t\ttuple[\"priceLocale\"] = json_extract_scalar(topRec[\"parameters\"] , 'priceLocale')\n" +
-						"\t\ttuple[\"quantity_parameters\"] = integer(json_extract_scalar(topRec[\"parameters\"] , 'quantity'))\n" +
-						"\t\ttuple[\"price_parameters\"] = float(json_extract_scalar(topRec[\"parameters\"] , 'price'))\n" +
-						"\t\ttuple[\"priceUsd_parameters\"] = float(json_extract_scalar(topRec[\"parameters\"] , 'priceUsd'))\n" +
+						"\t\ttuple[\"productId\"] = map_retrieve(topRec[\"parameters\"] , 'productID')\n" +
+						"\t\ttuple[\"transactionId\"] = map_retrieve(topRec[\"parameters\"] , 'transactionID')\n" +
+						"\t\ttuple[\"priceLocale\"] = map_retrieve(topRec[\"parameters\"] , 'priceLocale')\n" +
+						"\t\ttuple[\"quantity_parameters\"] = integer(map_retrieve(topRec[\"parameters\"] , 'quantity'))\n" +
+						"\t\ttuple[\"price_parameters\"] = float(map_retrieve(topRec[\"parameters\"] , 'price'))\n" +
+						"\t\ttuple[\"priceUsd_parameters\"] = float(map_retrieve(topRec[\"parameters\"] , 'priceUsd'))\n" +
 						"\t\treturn tuple\n";
 
 		String actualCode = mapper.code;
@@ -114,7 +114,7 @@ public class MapperTest {
 
 	@Test
 	public void testSelectEquations() throws Exception {
-		String query = "select UTC_MS_TO_HOUR(JSON_EXTRACT_SCALAR(parameters,'localTimestamp')*2333)+1 as timestamp, " +
+		String query = "select UTC_MS_TO_HOUR(MAP_RETRIEVE(parameters,'localTimestamp')*2333)+1 as timestamp, " +
 						"MIN(UTC_MS_TO_DAY(timestamp)+ 100) as reported_time, " +
 						"(100 + 20 + (40/ 2))/100 %2 as eq1, " +
 						"((value1 + 10) * 200+ 20) - 40 as eq2\n" +
@@ -123,7 +123,7 @@ public class MapperTest {
 		Mapper mapper = Mapper.factory(queryFields);
 
 		String expectedCode = "\t\tlocal tuple = map()\n" +
-						"\t\ttuple[\"timestamp\"] = utc_ms_to_hour(json_extract_scalar(topRec[\"parameters\"] , 'localTimestamp')*2333)+1\n" +
+						"\t\ttuple[\"timestamp\"] = utc_ms_to_hour(map_retrieve(topRec[\"parameters\"] , 'localTimestamp')*2333)+1\n" +
 						"\t\ttuple[\"reported_time_timestamp\"] = utc_ms_to_day(topRec[\"timestamp\"])+100\n" +
 						"\t\ttuple[\"eq1\"] = (100+20+(40 / 2)) / 100 % 2\n" +
 						"\t\ttuple[\"eq2\"] = ((topRec[\"value1\"]+10)*200+20) - 40\n" +
@@ -171,14 +171,14 @@ public class MapperTest {
 
 	@Test
 	public void testRecordFields() throws Exception {
-		String query = "select PRIMARY_KEY() as id, TTL() as ttl, digest() as digest, generation() as gen from ns.st";
+		String query = "select PRIMARY_KEY() as id, EXPIRATION() as expiration, digest() as digest, generation() as gen from ns.st";
 
 		QueryFields queryFields = QueryParser.parseQuery(query);
 		Mapper mapper = Mapper.factory(queryFields);
 
 		String expectedCode = "\t\tlocal tuple = map()\n" +
 						"\t\ttuple[\"id\"] = primary_key(topRec)\n" +
-						"\t\ttuple[\"ttl\"] = ttl(topRec)\n" +
+						"\t\ttuple[\"expiration\"] = expiration(topRec)\n" +
 						"\t\ttuple[\"digest\"] = digest(topRec)\n" +
 						"\t\ttuple[\"gen\"] = generation(topRec)\n" +
 						"\t\treturn tuple\n";

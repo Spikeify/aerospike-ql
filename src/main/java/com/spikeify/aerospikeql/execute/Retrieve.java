@@ -2,10 +2,11 @@ package com.spikeify.aerospikeql.execute;
 
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.query.ResultSet;
-import com.spikeify.aerospikeql.common.Definitions;
+import com.spikeify.aerospikeql.Definitions;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import com.spikeify.aerospikeql.parse.fields.HavingField;
 import com.spikeify.aerospikeql.parse.fields.OrderField;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -13,22 +14,23 @@ import java.util.*;
 /**
  * Created by roman on 17/08/15.
 
- * Retrieve a ResultsMap data structure (ResultsSet and QueryDiagnostics)
+ * Retrieve a List<Map<String, Object>> data structure (ResultsSet and QueryDiagnostics)
  */
 
-public class RetrieveResults {
+public class Retrieve {
 
 	private QueryFields queryFields;
 	private ResultSet rs;
 	private long overallStart;
+	private Diagnostics diagnostics;
 
-	public RetrieveResults(QueryFields queryFields, ResultSet rs, long overallStart) {
+	public Retrieve(QueryFields queryFields, ResultSet rs, long overallStart) {
 		this.queryFields = queryFields;
 		this.rs = rs;
 		this.overallStart = overallStart;
 	}
 
-	public ResultsMap retrieve() {
+	public List<Map<String, Object>> retrieve() {
 		boolean groupedResults = queryFields.getGroupList().size() > 0;
 		boolean orderedResults = queryFields.getOrderFields().getOrderList().size() > 0;
 		Map<String, Object> diagnostic = null;
@@ -86,10 +88,10 @@ public class RetrieveResults {
 
 		long overallEnd = System.currentTimeMillis();
 		long executionTime = overallEnd - overallStart;
-		QueryDiagnostics queryDiagnostics = new QueryDiagnostics(overallStart, overallEnd, executionTime, (long) resultList.size(), new Long(diagnostic.get("count").toString()), (long) queryFields.getQueriedColumns().size());
+		this.diagnostics = new Diagnostics(overallStart, overallEnd, executionTime, (long) resultList.size(), new Long(diagnostic.get("count").toString()), (long) queryFields.getQueriedColumns().size());
 
 
-		return new ResultsMap(resultList, queryDiagnostics);
+		return resultList;
 
 	}
 
@@ -209,22 +211,26 @@ public class RetrieveResults {
 	 */
 	private void sortElements(List<Map<String, Object>> list, final OrderField orderField) {
 		final List<String> orderList = orderField.getOrderList();
-		;
 
 		Collections.sort(list, new Comparator<Map<String, Object>>() {
 			public int compare(Map<String, Object> one, Map<String, Object> two) {
-				String first, second;
-				int sortOrder;
 
 				for (String key : orderList) {
-					sortOrder = orderField.getOrderDirection().get(key);
-					first = one != null && one.containsKey(key) && one.get(key) != null ? one.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
-					second = two != null && two.containsKey(key) && two.get(key) != null ? two.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
 
-					if (one != null && one.containsKey(key) && one.get(key) instanceof String)
+					int sortOrder = orderField.getOrderDirection().get(key);
+
+					String first = one != null && one.containsKey(key) && one.get(key) != null ? one.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
+					String second = two != null && two.containsKey(key) && two.get(key) != null ? two.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
+
+					if (one != null && one.containsKey(key) && two != null && two.containsKey(key) && (one.get(key) instanceof Map || two.get(key) instanceof Map || one.get(key) instanceof List || two.get(key) instanceof List) ) {
+						return 0;
+					}
+					else if (one != null && one.containsKey(key) && two != null && two.containsKey(key) && (one.get(key) instanceof String || two.get(key) instanceof String || one.get(key) instanceof Boolean || two.get(key) instanceof Boolean) ) {
 						return first.compareTo(second) * orderField.getOrderDirection().get(key);
-					else if (!first.equals(second))
+					}
+					else if (!first.equals(second)) {
 						return new BigDecimal(first).compareTo(new BigDecimal(second)) * orderField.getOrderDirection().get(key);
+					}
 
 				}
 				return 0;
@@ -232,4 +238,7 @@ public class RetrieveResults {
 		});
 	}
 
+	public Diagnostics getDiagnostics() {
+		return diagnostics;
+	}
 }

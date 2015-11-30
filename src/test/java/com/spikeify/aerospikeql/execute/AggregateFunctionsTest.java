@@ -1,7 +1,7 @@
 package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.AerospikeQl;
+import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
 import com.spikeify.annotations.UserKey;
@@ -9,19 +9,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 public class AggregateFunctionsTest {
 
 	Spikeify sfy;
-	AerospikeQl aerospikeQl;
+	AerospikeQlService aerospikeQlService;
 
 	@Before
 	public void setUp() throws Exception {
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
 		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQl = new AerospikeQl(sfy, queryUtils);
+		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
 		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
 	}
 
@@ -55,9 +58,9 @@ public class AggregateFunctionsTest {
 		createSet(100);
 		String query = "select count(1) as counter1, count(*) as counter2  from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(101L, resultsMap.getResultsData().get(0).get("counter1"));
-		assertEquals(101L, resultsMap.getResultsData().get(0).get("counter2"));
+		List<Map<String, Object>> resultList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(101L, resultList.get(0).get("counter1"));
+		assertEquals(101L, resultList.get(0).get("counter2"));
 	}
 
 	@Test
@@ -65,8 +68,8 @@ public class AggregateFunctionsTest {
 		createSet(100);
 		String query = "select count(distinct cluster) as counter from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(4L, resultsMap.getResultsData().get(0).get("counter"));
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(4L, resultsList.get(0).get("counter"));
 	}
 
 	@Test
@@ -79,13 +82,13 @@ public class AggregateFunctionsTest {
 						"count(*) as counter " +
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(true, resultsMap.getResultsData().size() == 1);
-		assertEquals(5050L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(50.5, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(1L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(100L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(101L, resultsMap.getResultsData().get(0).get("counter"));
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(true, resultsList.size() == 1);
+		assertEquals(5050L, resultsList.get(0).get("sumValue"));
+		assertEquals(50.5, resultsList.get(0).get("avgValue"));
+		assertEquals(1L, resultsList.get(0).get("minValue"));
+		assertEquals(100L, resultsList.get(0).get("maxValue"));
+		assertEquals(101L, resultsList.get(0).get("counter"));
 	}
 
 	@Test
@@ -98,13 +101,13 @@ public class AggregateFunctionsTest {
 						"count(case when value < 50 then value end) as counter " +
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(true, resultsMap.getResultsData().size() == 1);
-		assertEquals(1225L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(25.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(1L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(49L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(49L, resultsMap.getResultsData().get(0).get("counter"));
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(true, resultsList.size() == 1);
+		assertEquals(1225L, resultsList.get(0).get("sumValue"));
+		assertEquals(25.0, resultsList.get(0).get("avgValue"));
+		assertEquals(1L, resultsList.get(0).get("minValue"));
+		assertEquals(49L, resultsList.get(0).get("maxValue"));
+		assertEquals(49L, resultsList.get(0).get("counter"));
 	}
 
 	@Test
@@ -117,13 +120,13 @@ public class AggregateFunctionsTest {
 						"count(case when value < 50 then value else 0 end) as counter " +
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(true, resultsMap.getResultsData().size() == 1);
-		assertEquals(1225L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(25.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(49L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(49L, resultsMap.getResultsData().get(0).get("counter"));
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(true, resultsList.size() == 1);
+		assertEquals(1225L, resultsList.get(0).get("sumValue"));
+		assertEquals(25.0, resultsList.get(0).get("avgValue"));
+		assertEquals(0L, resultsList.get(0).get("minValue"));
+		assertEquals(49L, resultsList.get(0).get("maxValue"));
+		assertEquals(49L, resultsList.get(0).get("counter"));
 	}
 
 	@Test
@@ -139,42 +142,42 @@ public class AggregateFunctionsTest {
 						"group by cluster " +
 						"order by cluster asc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
-		assertEquals(0L, resultsMap.getResultsData().get(0).get("cluster"));
-		assertEquals(1300L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(52.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(4L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(100L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(0).get("counter"));
+		assertEquals(0L, resultsList.get(0).get("cluster"));
+		assertEquals(1300L, resultsList.get(0).get("sumValue"));
+		assertEquals(52.0, resultsList.get(0).get("avgValue"));
+		assertEquals(4L, resultsList.get(0).get("minValue"));
+		assertEquals(100L, resultsList.get(0).get("maxValue"));
+		assertEquals(25L, resultsList.get(0).get("counter"));
 
-		assertEquals(1L, resultsMap.getResultsData().get(1).get("cluster"));
-		assertEquals(1225L, resultsMap.getResultsData().get(1).get("sumValue"));
-		assertEquals(49.0, resultsMap.getResultsData().get(1).get("avgValue"));
-		assertEquals(1L, resultsMap.getResultsData().get(1).get("minValue"));
-		assertEquals(97L, resultsMap.getResultsData().get(1).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(1).get("counter"));
+		assertEquals(1L, resultsList.get(1).get("cluster"));
+		assertEquals(1225L, resultsList.get(1).get("sumValue"));
+		assertEquals(49.0, resultsList.get(1).get("avgValue"));
+		assertEquals(1L, resultsList.get(1).get("minValue"));
+		assertEquals(97L, resultsList.get(1).get("maxValue"));
+		assertEquals(25L, resultsList.get(1).get("counter"));
 
-		assertEquals(2L, resultsMap.getResultsData().get(2).get("cluster"));
-		assertEquals(1250L, resultsMap.getResultsData().get(2).get("sumValue"));
-		assertEquals(50.0, resultsMap.getResultsData().get(2).get("avgValue"));
-		assertEquals(2L, resultsMap.getResultsData().get(2).get("minValue"));
-		assertEquals(98L, resultsMap.getResultsData().get(2).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(2).get("counter"));
+		assertEquals(2L, resultsList.get(2).get("cluster"));
+		assertEquals(1250L, resultsList.get(2).get("sumValue"));
+		assertEquals(50.0, resultsList.get(2).get("avgValue"));
+		assertEquals(2L, resultsList.get(2).get("minValue"));
+		assertEquals(98L, resultsList.get(2).get("maxValue"));
+		assertEquals(25L, resultsList.get(2).get("counter"));
 
-		assertEquals(3L, resultsMap.getResultsData().get(3).get("cluster"));
-		assertEquals(1275L, resultsMap.getResultsData().get(3).get("sumValue"));
-		assertEquals(51.0, resultsMap.getResultsData().get(3).get("avgValue"));
-		assertEquals(3L, resultsMap.getResultsData().get(3).get("minValue"));
-		assertEquals(99L, resultsMap.getResultsData().get(3).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(3).get("counter"));
+		assertEquals(3L, resultsList.get(3).get("cluster"));
+		assertEquals(1275L, resultsList.get(3).get("sumValue"));
+		assertEquals(51.0, resultsList.get(3).get("avgValue"));
+		assertEquals(3L, resultsList.get(3).get("minValue"));
+		assertEquals(99L, resultsList.get(3).get("maxValue"));
+		assertEquals(25L, resultsList.get(3).get("counter"));
 
-		assertEquals(null, resultsMap.getResultsData().get(4).get("cluster"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("sumValue"));
-		assertEquals(0.0, resultsMap.getResultsData().get(4).get("avgValue"));
-		assertEquals(null, resultsMap.getResultsData().get(4).get("minValue"));
-		assertEquals(null, resultsMap.getResultsData().get(4).get("maxValue"));
-		assertEquals(1L, resultsMap.getResultsData().get(4).get("counter"));
+		assertEquals(null, resultsList.get(4).get("cluster"));
+		assertEquals(0L, resultsList.get(4).get("sumValue"));
+		assertEquals(0.0, resultsList.get(4).get("avgValue"));
+		assertEquals(null, resultsList.get(4).get("minValue"));
+		assertEquals(null, resultsList.get(4).get("maxValue"));
+		assertEquals(1L, resultsList.get(4).get("counter"));
 
 
 
@@ -194,43 +197,43 @@ public class AggregateFunctionsTest {
 						"group by cluster " +
 						"order by cluster asc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(5, resultsMap.getResultsData().size());
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(5, resultsList.size());
 
-		assertEquals(0L, resultsMap.getResultsData().get(0).get("cluster"));
-		assertEquals(312L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(26.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(4L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(48L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(12L, resultsMap.getResultsData().get(0).get("counter"));
+		assertEquals(0L, resultsList.get(0).get("cluster"));
+		assertEquals(312L, resultsList.get(0).get("sumValue"));
+		assertEquals(26.0, resultsList.get(0).get("avgValue"));
+		assertEquals(4L, resultsList.get(0).get("minValue"));
+		assertEquals(48L, resultsList.get(0).get("maxValue"));
+		assertEquals(12L, resultsList.get(0).get("counter"));
 
-		assertEquals(1L, resultsMap.getResultsData().get(1).get("cluster"));
-		assertEquals(325L, resultsMap.getResultsData().get(1).get("sumValue"));
-		assertEquals(25.0, resultsMap.getResultsData().get(1).get("avgValue"));
-		assertEquals(1L, resultsMap.getResultsData().get(1).get("minValue"));
-		assertEquals(49L, resultsMap.getResultsData().get(1).get("maxValue"));
-		assertEquals(13L, resultsMap.getResultsData().get(1).get("counter"));
+		assertEquals(1L, resultsList.get(1).get("cluster"));
+		assertEquals(325L, resultsList.get(1).get("sumValue"));
+		assertEquals(25.0, resultsList.get(1).get("avgValue"));
+		assertEquals(1L, resultsList.get(1).get("minValue"));
+		assertEquals(49L, resultsList.get(1).get("maxValue"));
+		assertEquals(13L, resultsList.get(1).get("counter"));
 
-		assertEquals(2L, resultsMap.getResultsData().get(2).get("cluster"));
-		assertEquals(288L, resultsMap.getResultsData().get(2).get("sumValue"));
-		assertEquals(24.0, resultsMap.getResultsData().get(2).get("avgValue"));
-		assertEquals(2L, resultsMap.getResultsData().get(2).get("minValue"));
-		assertEquals(46L, resultsMap.getResultsData().get(2).get("maxValue"));
-		assertEquals(12L, resultsMap.getResultsData().get(2).get("counter"));
+		assertEquals(2L, resultsList.get(2).get("cluster"));
+		assertEquals(288L, resultsList.get(2).get("sumValue"));
+		assertEquals(24.0, resultsList.get(2).get("avgValue"));
+		assertEquals(2L, resultsList.get(2).get("minValue"));
+		assertEquals(46L, resultsList.get(2).get("maxValue"));
+		assertEquals(12L, resultsList.get(2).get("counter"));
 
-		assertEquals(3L, resultsMap.getResultsData().get(3).get("cluster"));
-		assertEquals(300L, resultsMap.getResultsData().get(3).get("sumValue"));
-		assertEquals(25.0, resultsMap.getResultsData().get(3).get("avgValue"));
-		assertEquals(3L, resultsMap.getResultsData().get(3).get("minValue"));
-		assertEquals(47L, resultsMap.getResultsData().get(3).get("maxValue"));
-		assertEquals(12L, resultsMap.getResultsData().get(3).get("counter"));
+		assertEquals(3L, resultsList.get(3).get("cluster"));
+		assertEquals(300L, resultsList.get(3).get("sumValue"));
+		assertEquals(25.0, resultsList.get(3).get("avgValue"));
+		assertEquals(3L, resultsList.get(3).get("minValue"));
+		assertEquals(47L, resultsList.get(3).get("maxValue"));
+		assertEquals(12L, resultsList.get(3).get("counter"));
 
-		assertEquals(null, resultsMap.getResultsData().get(4).get("cluster"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("sumValue"));
-		assertEquals(0.0, resultsMap.getResultsData().get(4).get("avgValue"));
-		assertEquals(null, resultsMap.getResultsData().get(4).get("minValue"));
-		assertEquals(null, resultsMap.getResultsData().get(4).get("maxValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("counter"));
+		assertEquals(null, resultsList.get(4).get("cluster"));
+		assertEquals(0L, resultsList.get(4).get("sumValue"));
+		assertEquals(0.0, resultsList.get(4).get("avgValue"));
+		assertEquals(null, resultsList.get(4).get("minValue"));
+		assertEquals(null, resultsList.get(4).get("maxValue"));
+		assertEquals(0L, resultsList.get(4).get("counter"));
 	}
 
 	@Test
@@ -246,42 +249,42 @@ public class AggregateFunctionsTest {
 						"group by cluster " +
 						"order by cluster asc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
-		assertEquals(0L, resultsMap.getResultsData().get(0).get("cluster"));
-		assertEquals(312L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(26.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(48L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(12L, resultsMap.getResultsData().get(0).get("counter"));
+		assertEquals(0L, resultsList.get(0).get("cluster"));
+		assertEquals(312L, resultsList.get(0).get("sumValue"));
+		assertEquals(26.0, resultsList.get(0).get("avgValue"));
+		assertEquals(0L, resultsList.get(0).get("minValue"));
+		assertEquals(48L, resultsList.get(0).get("maxValue"));
+		assertEquals(12L, resultsList.get(0).get("counter"));
 
-		assertEquals(1L, resultsMap.getResultsData().get(1).get("cluster"));
-		assertEquals(325L, resultsMap.getResultsData().get(1).get("sumValue"));
-		assertEquals(25.0, resultsMap.getResultsData().get(1).get("avgValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(1).get("minValue"));
-		assertEquals(49L, resultsMap.getResultsData().get(1).get("maxValue"));
-		assertEquals(13L, resultsMap.getResultsData().get(1).get("counter"));
+		assertEquals(1L, resultsList.get(1).get("cluster"));
+		assertEquals(325L, resultsList.get(1).get("sumValue"));
+		assertEquals(25.0, resultsList.get(1).get("avgValue"));
+		assertEquals(0L, resultsList.get(1).get("minValue"));
+		assertEquals(49L, resultsList.get(1).get("maxValue"));
+		assertEquals(13L, resultsList.get(1).get("counter"));
 
-		assertEquals(2L, resultsMap.getResultsData().get(2).get("cluster"));
-		assertEquals(288L, resultsMap.getResultsData().get(2).get("sumValue"));
-		assertEquals(24.0, resultsMap.getResultsData().get(2).get("avgValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(2).get("minValue"));
-		assertEquals(46L, resultsMap.getResultsData().get(2).get("maxValue"));
-		assertEquals(12L, resultsMap.getResultsData().get(2).get("counter"));
+		assertEquals(2L, resultsList.get(2).get("cluster"));
+		assertEquals(288L, resultsList.get(2).get("sumValue"));
+		assertEquals(24.0, resultsList.get(2).get("avgValue"));
+		assertEquals(0L, resultsList.get(2).get("minValue"));
+		assertEquals(46L, resultsList.get(2).get("maxValue"));
+		assertEquals(12L, resultsList.get(2).get("counter"));
 
-		assertEquals(3L, resultsMap.getResultsData().get(3).get("cluster"));
-		assertEquals(300L, resultsMap.getResultsData().get(3).get("sumValue"));
-		assertEquals(25.0, resultsMap.getResultsData().get(3).get("avgValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(3).get("minValue"));
-		assertEquals(47L, resultsMap.getResultsData().get(3).get("maxValue"));
-		assertEquals(12L, resultsMap.getResultsData().get(3).get("counter"));
+		assertEquals(3L, resultsList.get(3).get("cluster"));
+		assertEquals(300L, resultsList.get(3).get("sumValue"));
+		assertEquals(25.0, resultsList.get(3).get("avgValue"));
+		assertEquals(0L, resultsList.get(3).get("minValue"));
+		assertEquals(47L, resultsList.get(3).get("maxValue"));
+		assertEquals(12L, resultsList.get(3).get("counter"));
 
-		assertEquals(null, resultsMap.getResultsData().get(4).get("cluster"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("sumValue"));
-		assertEquals(0.0, resultsMap.getResultsData().get(4).get("avgValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("minValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("maxValue"));
-		assertEquals(0L, resultsMap.getResultsData().get(4).get("counter"));
+		assertEquals(null, resultsList.get(4).get("cluster"));
+		assertEquals(0L, resultsList.get(4).get("sumValue"));
+		assertEquals(0.0, resultsList.get(4).get("avgValue"));
+		assertEquals(0L, resultsList.get(4).get("minValue"));
+		assertEquals(0L, resultsList.get(4).get("maxValue"));
+		assertEquals(0L, resultsList.get(4).get("counter"));
 
 
 	}

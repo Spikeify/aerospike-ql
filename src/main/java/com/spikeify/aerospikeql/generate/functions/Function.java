@@ -1,6 +1,6 @@
 package com.spikeify.aerospikeql.generate.functions;
 
-import com.spikeify.aerospikeql.common.Definitions;
+import com.spikeify.aerospikeql.Definitions;
 
 import java.util.HashSet;
 import java.util.Map;

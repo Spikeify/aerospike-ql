@@ -1,7 +1,7 @@
 package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.AerospikeQl;
+import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
 import com.spikeify.annotations.UserKey;
@@ -9,19 +9,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Map;
+
 import static junit.framework.TestCase.assertEquals;
 
 public class HavingFunctionTest {
 
 	Spikeify sfy;
-	AerospikeQl aerospikeQl;
+	AerospikeQlService aerospikeQlService;
 
 	@Before
 	public void setUp() throws Exception {
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
 		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQl = new AerospikeQl(sfy, queryUtils);
+		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
 		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
 	}
 
@@ -64,22 +67,22 @@ public class HavingFunctionTest {
 						"having avgValue > 50 " +
 						"order by cluster asc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
-		assertEquals(2, resultsMap.getResultsData().size());
-		assertEquals(0L, resultsMap.getResultsData().get(0).get("cluster"));
-		assertEquals(1300L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(52.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(4L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(100L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(0).get("counter"));
+		assertEquals(2, resultsList.size());
+		assertEquals(0L, resultsList.get(0).get("cluster"));
+		assertEquals(1300L, resultsList.get(0).get("sumValue"));
+		assertEquals(52.0, resultsList.get(0).get("avgValue"));
+		assertEquals(4L, resultsList.get(0).get("minValue"));
+		assertEquals(100L, resultsList.get(0).get("maxValue"));
+		assertEquals(25L, resultsList.get(0).get("counter"));
 
-		assertEquals(3L, resultsMap.getResultsData().get(1).get("cluster"));
-		assertEquals(1275L, resultsMap.getResultsData().get(1).get("sumValue"));
-		assertEquals(51.0, resultsMap.getResultsData().get(1).get("avgValue"));
-		assertEquals(3L, resultsMap.getResultsData().get(1).get("minValue"));
-		assertEquals(99L, resultsMap.getResultsData().get(1).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(1).get("counter"));
+		assertEquals(3L, resultsList.get(1).get("cluster"));
+		assertEquals(1275L, resultsList.get(1).get("sumValue"));
+		assertEquals(51.0, resultsList.get(1).get("avgValue"));
+		assertEquals(3L, resultsList.get(1).get("minValue"));
+		assertEquals(99L, resultsList.get(1).get("maxValue"));
+		assertEquals(25L, resultsList.get(1).get("counter"));
 	}
 
 	@Test
@@ -95,14 +98,14 @@ public class HavingFunctionTest {
 						"group by cluster " +
 						"having avgValue > 50 and maxValue = 99";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(1, resultsMap.getResultsData().size());
-		assertEquals(3L, resultsMap.getResultsData().get(0).get("cluster"));
-		assertEquals(1275L, resultsMap.getResultsData().get(0).get("sumValue"));
-		assertEquals(51.0, resultsMap.getResultsData().get(0).get("avgValue"));
-		assertEquals(3L, resultsMap.getResultsData().get(0).get("minValue"));
-		assertEquals(99L, resultsMap.getResultsData().get(0).get("maxValue"));
-		assertEquals(25L, resultsMap.getResultsData().get(0).get("counter"));
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(1, resultsList.size());
+		assertEquals(3L, resultsList.get(0).get("cluster"));
+		assertEquals(1275L, resultsList.get(0).get("sumValue"));
+		assertEquals(51.0, resultsList.get(0).get("avgValue"));
+		assertEquals(3L, resultsList.get(0).get("minValue"));
+		assertEquals(99L, resultsList.get(0).get("maxValue"));
+		assertEquals(25L, resultsList.get(0).get("counter"));
 	}
 
 	private class Entity {

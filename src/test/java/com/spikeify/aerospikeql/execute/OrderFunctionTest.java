@@ -1,7 +1,7 @@
 package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.AerospikeQl;
+import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
 import com.spikeify.annotations.UserKey;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class OrderFunctionTest {
 
 	Spikeify sfy;
-	AerospikeQl aerospikeQl;
+	AerospikeQlService aerospikeQlService;
 
 
 	@Before
@@ -27,7 +27,7 @@ public class OrderFunctionTest {
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
 		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQl = new AerospikeQl(sfy, queryUtils);
+		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
 		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
 	}
 
@@ -66,11 +66,11 @@ public class OrderFunctionTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"order by value desc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
-		assertEquals(101, resultsMap.getResultsData().size());
+		assertEquals(101, resultsList.size());
 		Long sequence = 100L;
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		for (Map<String, Object> map : resultsList) {
 			if (sequence > 0) {
 				assertEquals(sequence--, map.get("value"));
 			} else {
@@ -89,11 +89,11 @@ public class OrderFunctionTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"order by value asc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
-		assertEquals(101, resultsMap.getResultsData().size());
+		assertEquals(101, resultsList.size());
 		Long sequence = 1L;
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		for (Map<String, Object> map : resultsList) {
 			if (sequence < 101) {
 				assertEquals(sequence++, map.get("value"));
 			} else {
@@ -112,11 +112,11 @@ public class OrderFunctionTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"order by value asc, cluster";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
-		assertEquals(101, resultsMap.getResultsData().size());
+		assertEquals(101, resultsList.size());
 		Long sequence = 1L;
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		for (Map<String, Object> map : resultsList) {
 			if (sequence < 101) {
 				assertEquals(sequence++, map.get("value"));
 			} else {
@@ -135,7 +135,7 @@ public class OrderFunctionTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"order by pk asc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		List<String> strings = new ArrayList<>();
 		for (int i = 1; i < 100 + 2; i++) {
 			strings.add(String.valueOf(i));
@@ -143,10 +143,10 @@ public class OrderFunctionTest {
 		Collections.sort(strings);
 
 		assertEquals(101, strings.size());
-		assertEquals(101, resultsMap.getResultsData().size());
+		assertEquals(101, resultsList.size());
 
 		int counter = 0;
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(strings.get(counter++), map.get("pk"));
 		}
 	}
@@ -161,7 +161,7 @@ public class OrderFunctionTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"order by pk desc";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		List<String> strings = new ArrayList<>();
 		for (int i = 1; i < 100 + 2; i++) {
 			strings.add(String.valueOf(i));
@@ -169,10 +169,10 @@ public class OrderFunctionTest {
 		Collections.sort(strings, Collections.reverseOrder());
 
 		assertEquals(101, strings.size());
-		assertEquals(101, resultsMap.getResultsData().size());
+		assertEquals(101, resultsList.size());
 
 		int counter = 0;
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(strings.get(counter++), map.get("pk"));
 		}
 	}
@@ -187,7 +187,7 @@ public class OrderFunctionTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"order by pk desc, value";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		List<String> strings = new ArrayList<>();
 		for (int i = 1; i < 100 + 2; i++) {
 			strings.add(String.valueOf(i));
@@ -195,10 +195,10 @@ public class OrderFunctionTest {
 		Collections.sort(strings, Collections.reverseOrder());
 
 		assertEquals(101, strings.size());
-		assertEquals(101, resultsMap.getResultsData().size());
+		assertEquals(101, resultsList.size());
 
 		int counter = 0;
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(strings.get(counter++), map.get("pk"));
 		}
 	}

@@ -1,6 +1,6 @@
 package com.spikeify.aerospikeql.generate.functions;
 
-import com.spikeify.aerospikeql.common.Definitions;
+import com.spikeify.aerospikeql.Definitions;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import com.spikeify.aerospikeql.parse.fields.statements.AggregationStatement;
 import com.spikeify.aerospikeql.parse.fields.statements.BasicStatement;

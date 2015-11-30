@@ -1,6 +1,6 @@
 package com.spikeify.aerospikeql.generate.functions;
 
-import com.spikeify.aerospikeql.common.Definitions;
+import com.spikeify.aerospikeql.Definitions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,13 +68,13 @@ public class Transformation extends Function {
 				generatedCode = addTimeLogic();
 			} else if (Definitions.singleFieldTransformationsUnitRemove.contains(functionName.toUpperCase())) {
 				generatedCode = removeMillisFromTimestamp(functionName);
-			} else if (functionName.equalsIgnoreCase("PRIMARY_KEY")) {
+			} else if (functionName.equalsIgnoreCase(Definitions.primaryKey)) {
 				generatedCode = addPrimaryKeyLogic();
-			} else if (functionName.toUpperCase().equalsIgnoreCase("TTL")) {
-				generatedCode = addTTLLogic();
-			} else if (functionName.toUpperCase().equalsIgnoreCase("GENERATION")) {
+			} else if (functionName.equalsIgnoreCase(Definitions.expiration)) {
+				generatedCode = addExpirationLogic();
+			} else if (functionName.equalsIgnoreCase(Definitions.generation)) {
 				generatedCode = addGenerationLogic();
-			} else if (functionName.toUpperCase().equalsIgnoreCase("DIGEST")) {
+			} else if (functionName.equalsIgnoreCase(Definitions.digest)) {
 				generatedCode = addDigestLogic();
 			}
 
@@ -87,7 +87,7 @@ public class Transformation extends Function {
 			} else if (functionName.equalsIgnoreCase("MAP_RETRIEVE")) {
 				generatedCode = addMapRetrieveLogic();
 			} else if (functionName.equalsIgnoreCase("REGEXP_MATCH")) {
-				generatedCode = addRegexpLogic();
+				generatedCode = addStringContainsLogic();
 			} else if (functionName.equalsIgnoreCase("IFNULL")) {
 				generatedCode = addIfNullLogic();
 			} else if (functionName.equalsIgnoreCase("LIST_CONTAINS")) {
@@ -98,7 +98,7 @@ public class Transformation extends Function {
 				generatedCode = addListMatchLogic();
 			} else if (functionName.equalsIgnoreCase("STRING_CONTAINS")) {
 				generatedCode = addStringContainsLogic();
-			} else if (functionName.equalsIgnoreCase("STRING_MATCH")) {
+			} else if (functionName.equalsIgnoreCase("STRING_RETRIEVE")) {
 				generatedCode = addStringRetrieveLogic();
 			}
 		}
@@ -119,7 +119,7 @@ public class Transformation extends Function {
 		return generatedCode;
 	}
 
-	private String addTTLLogic() {
+	private String addExpirationLogic() {
 		String generatedCode = "";
 		String tabs1 = getTabs(level + 1);
 		generatedCode += tabs1 + "return record.gen(" + nameArg1 + ")\n";
@@ -166,7 +166,7 @@ public class Transformation extends Function {
 		generatedCode += tabs2 + "end\n";
 		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "end\n";
-		generatedCode += tabs1 + "return ''\n";
+		generatedCode += tabs1 + "return nil\n";
 		return generatedCode;
 	}
 
@@ -206,11 +206,6 @@ public class Transformation extends Function {
 		String generatedCode = "";
 		String tabs = getTabs(level + 1);
 		generatedCode += tabs + "return " + nameArg1 + " or " + nameArg2 + "\n";
-		return generatedCode;
-	}
-
-	private String addRegexpLogic() {
-		String generatedCode = addStringContainsLogic();
 		return generatedCode;
 	}
 

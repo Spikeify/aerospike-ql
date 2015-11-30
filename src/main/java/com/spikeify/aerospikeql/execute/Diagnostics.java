@@ -5,7 +5,7 @@ package com.spikeify.aerospikeql.execute;
 
  * Query runtime diagnostics
  */
-public class QueryDiagnostics {
+public class Diagnostics {
 
 	private final Long startTime;
 	private final Long endTime;
@@ -14,7 +14,7 @@ public class QueryDiagnostics {
 	private final Long rowsQueried;
 	private final Long columnsQueried;
 
-	public QueryDiagnostics(Long startTime, Long endTime, Long executionTime, Long rowsRetrieved, Long rowsQueried, Long columnsQueried) {
+	public Diagnostics(Long startTime, Long endTime, Long executionTime, Long rowsRetrieved, Long rowsQueried, Long columnsQueried) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.executionTime = executionTime;

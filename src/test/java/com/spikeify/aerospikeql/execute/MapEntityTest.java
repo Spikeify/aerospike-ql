@@ -1,7 +1,7 @@
 package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.AerospikeQl;
+import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
 import com.spikeify.annotations.UserKey;
@@ -17,7 +17,7 @@ import static junit.framework.TestCase.assertEquals;
 public class MapEntityTest {
 
 	Spikeify sfy;
-	AerospikeQl aerospikeQl;
+	AerospikeQlService aerospikeQlService;
 
 
 	@Before
@@ -25,7 +25,7 @@ public class MapEntityTest {
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
 		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQl = new AerospikeQl(sfy, queryUtils);
+		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
 		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
 	}
 
@@ -72,11 +72,10 @@ public class MapEntityTest {
 		createSet(100);
 		String query = "select * from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity order by value2";
 
-		ResultsType<Entity> resultsType = aerospikeQl.runAdhocQuery(query).asType(Entity.class);
-		List<Entity> entities = resultsType.getResultsData();
-		assertEquals(101, entities.size());
+		List<Entity> resultsList = aerospikeQlService.execAdhoc(Entity.class, query).now();
+		assertEquals(101, resultsList.size());
 		Integer count = 2;
-		for (Entity entity : entities) {
+		for (Entity entity : resultsList) {
 			if (count < 101) {
 				assertEquals(count++, entity.value2);
 			}
@@ -91,8 +90,7 @@ public class MapEntityTest {
 						"avg(value) as avgValue from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"group by cluster";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		List<Map<String, Object>> resultsList = resultsMap.getResultsData();
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(5, resultsList.size());
 
 

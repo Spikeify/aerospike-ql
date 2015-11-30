@@ -15,14 +15,14 @@ import net.sf.jsqlparser.statement.select.SelectItem;
  */
 public class QueryParser {
 
-	public static QueryFields parseQuery(String query) throws QueryParserException {
+	public static QueryFields parseQuery(String query) throws ParserException {
 		Statement stmt;
 
 		try {
 			stmt = CCJSqlParserUtil.parse(query);
 		} catch (JSQLParserException e) {
 			String message = e.getCause().getMessage();
-			throw new QueryParserException(message);
+			throw new ParserException(message);
 		}
 
 		net.sf.jsqlparser.statement.select.Select selectStatement = (net.sf.jsqlparser.statement.select.Select) stmt;
@@ -38,7 +38,7 @@ public class QueryParser {
 
 		//parse from
 		if (plain.getFromItem() == null) {
-			throw new QueryParserException("Please define FROM statements.");
+			throw new ParserException("Please define FROM statements.");
 
 		} else {
 			String fromItem = plain.getFromItem().toString();

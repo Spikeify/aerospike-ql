@@ -1,15 +1,16 @@
 package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.AerospikeQl;
+import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
-import com.spikeify.aerospikeql.parse.QueryParserException;
+import com.spikeify.aerospikeql.parse.ParserException;
 import com.spikeify.annotations.UserKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -18,7 +19,7 @@ public class BasicFunctionsTest {
 
 	Spikeify sfy;
 
-	AerospikeQl aerospikeQl;
+	AerospikeQlService aerospikeQlService;
 
 
 	@Before
@@ -26,7 +27,7 @@ public class BasicFunctionsTest {
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
 		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQl = new AerospikeQl(sfy, queryUtils);
+		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
 		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
 	}
 
@@ -68,7 +69,7 @@ public class BasicFunctionsTest {
 	}
 
 	@Test
-	public void testSelectAll() throws QueryParserException {
+	public void testSelectAll() throws ParserException {
 		createSet(100);
 		String query = "select primary_key() as key, " +
 						"value, " +
@@ -76,28 +77,28 @@ public class BasicFunctionsTest {
 						"cluster " +
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(101, resultsMap.getResultsData().size());
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(101, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(4, map.size());
 		}
 	}
 
 	@Test
-	public void testSelectAllAsterisk() throws QueryParserException {
+	public void testSelectAllAsterisk() throws ParserException {
 		createSet(100);
 		String query = "select * " +
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(101, resultsMap.getResultsData().size());
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(101, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(true, map.size() >= 4); //null values are not included, but ttl and generation are added
 		}
 	}
 
 	@Test
-	public void testSelectLimit() throws QueryParserException {
+	public void testSelectLimit() throws ParserException {
 		createSet(100);
 		String query = "select primary_key() as key," +
 						"value, " +
@@ -106,15 +107,15 @@ public class BasicFunctionsTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"limit 10";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(10, resultsMap.getResultsData().size());
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(10, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(4, map.size());
 		}
 	}
 
 	@Test
-	public void testSelectWhere() throws QueryParserException {
+	public void testSelectWhere() throws ParserException {
 		createSet(100);
 		String query = "select primary_key() as key," +
 						"value, " +
@@ -123,15 +124,15 @@ public class BasicFunctionsTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"where cluster = 3";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(25, resultsMap.getResultsData().size());
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(25, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(4, map.size());
 		}
 	}
 
 	@Test
-	public void testSelectWhereNotNull() throws QueryParserException {
+	public void testSelectWhereNotNull() throws ParserException {
 		createSet(100);
 		String query = "select primary_key() as key," +
 						"value, " +
@@ -140,9 +141,9 @@ public class BasicFunctionsTest {
 						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
 						"where cluster != null";
 
-		ResultsMap resultsMap = aerospikeQl.runAdhocQuery(query).asMap();
-		assertEquals(100, resultsMap.getResultsData().size());
-		for (Map<String, Object> map : resultsMap.getResultsData()) {
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(100, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
 			assertEquals(4, map.size());
 		}
 	}

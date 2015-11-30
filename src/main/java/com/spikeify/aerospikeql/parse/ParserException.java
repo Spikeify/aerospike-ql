@@ -3,9 +3,9 @@ package com.spikeify.aerospikeql.parse;
 /**
  * Created by roman on 03/08/15.
  */
-public class QueryParserException extends Exception {
+public class ParserException extends Exception {
 
-	public QueryParserException(String s) {
+	public ParserException(String s) {
 		super(s);
 	}
 }

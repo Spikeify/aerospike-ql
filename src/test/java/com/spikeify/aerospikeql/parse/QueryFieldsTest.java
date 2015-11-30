@@ -6,7 +6,7 @@ import static junit.framework.TestCase.assertEquals;
 
 public class QueryFieldsTest {
 
-	@Test(expected = QueryParserException.class)
+	@Test(expected = ParserException.class)
 	public void testPostProcessException() throws Exception {
 		String query = "select timezone, timestamp as ts from t group by timezone";
 		QueryParser.parseQuery(query); //QueryFields is called post process

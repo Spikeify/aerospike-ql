@@ -1,6 +1,6 @@
 package com.spikeify.aerospikeql.parse;
 
-import com.spikeify.aerospikeql.common.Definitions;
+import com.spikeify.aerospikeql.Definitions;
 import com.spikeify.aerospikeql.parse.fields.HavingField;
 import com.spikeify.aerospikeql.parse.fields.OrderField;
 import com.spikeify.aerospikeql.parse.fields.SelectField;
@@ -167,10 +167,10 @@ public class QueryFields {
 	/**
 	 * invoked after fields are set
 	 *
-	 * @throws QueryParserException - sect field is not in group by statement
+	 * @throws ParserException - sect field is not in group by statement
 	 */
 
-	public void postProcess() throws QueryParserException {
+	public void postProcess() throws ParserException {
 		selectField.setAliases();
 		selectField.setFields();  //classify fields (basic, aggregation, transformation)
 		havingField.setFields(selectField.getAliases());
@@ -184,14 +184,14 @@ public class QueryFields {
 		for (Statement statement : selectField.getStatements()) {
 			if (groupList.size() > 0 && statement.isNested() && !groupList.contains(statement.getAlias())) {
 				String message = statement.getAlias() + " statements is not in group by statements.";
-				throw new QueryParserException(message);
+				throw new ParserException(message);
 			}
 		}
 
 //		for (Statement field : selectField.getStatements()) {
 //			if(Definitions.forbiddenFieldNames.contains(field.getField())){
 //				String message = field.getField() + " name is forbidden as it used by aerospike-ql.";
-//				throw new QueryParserException(message);
+//				throw new ParserException(message);
 //			}
 //		}
 
@@ -200,7 +200,7 @@ public class QueryFields {
 	  for(String field: orderFields.getOrderList())
 	      if(!selectField.getAliases().contains(field)){
 	          String message = field + " field in order by is not in select statements.";
-	          throw new QueryParserException(message);
+	          throw new ParserException(message);
 	      }
 	  */
 

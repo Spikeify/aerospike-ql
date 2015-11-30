@@ -6,13 +6,12 @@ import com.spikeify.*;
 import com.spikeify.aerospikeql.generate.CodeGenerator;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import com.spikeify.aerospikeql.parse.QueryParser;
-import com.spikeify.aerospikeql.parse.QueryParserException;
+import com.spikeify.aerospikeql.parse.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.*;
 
 public class QueryUtils {
 
@@ -44,7 +43,7 @@ public class QueryUtils {
 		QueryFields queryFields;
 		try {
 			queryFields = QueryParser.parseQuery(query);
-		} catch (QueryParserException e) {
+		} catch (ParserException e) {
 			log.error(e.getMessage());
 			return null;
 		}
@@ -104,76 +103,7 @@ public class QueryUtils {
 		sfy.getClient().removeUdf(null, udfName);
 	}
 
-	protected boolean isSelectAll(String query){
-		query = query.trim().replaceAll(" +", " ");
-		return query.toLowerCase().contains("select *");
-	}
-
-
-	public String queryTransformation(final Class clazz, String query) {
-		log.info("query before transformation: {}", query);
-
-		Map<String, FieldMapper> fieldMappers = new HashMap<String, FieldMapper>() {{
-			put("PRIMARY_KEY()", MapperUtils.getUserKeyFieldMapper(clazz));
-			put("GENERATION()", MapperUtils.getGenerationFieldMapper(clazz));
-			put("TTL()", MapperUtils.getExpirationFieldMapper(clazz));
-		}};
-
-		//process select *
-		boolean selectAll = false;
-		if (isSelectAll(query)) {
-			selectAll = true;
-			Map<String, String> binMappings = MapperUtils.getBinMappings(clazz);
-			List<String> mappedFields = new ArrayList<>(binMappings.keySet());
-
-			for (Map.Entry<String, FieldMapper> fieldMapper : fieldMappers.entrySet()) {
-				if (fieldMapper.getValue() != null) {
-					mappedFields.add(fieldMapper.getValue().getFieldName());
-				}
-			}
-			Collections.sort(mappedFields);
-			String bins = join(mappedFields, ", ");
-			//process aerospike special fields
-			for (Map.Entry<String, FieldMapper> fieldMapper : fieldMappers.entrySet()) {
-				if (fieldMapper.getValue() != null) {
-					bins = bins.replaceAll("\\b" + fieldMapper.getValue().getFieldName() + "\\b", fieldMapper.getKey() + " as " + fieldMapper.getValue().getFieldName());
-				}
-			}
-
-			query = query.replaceAll("(?i)select \\*", "SELECT " + bins);
-		}
-
-		Map<String, String> binMappings = MapperUtils.getBinMappings(clazz);
-		for (Map.Entry<String, String> entry : binMappings.entrySet()) {
-			if (!entry.getValue().equals(entry.getKey())) {
-				query = query.replaceAll("\\b" + entry.getValue() + "\\b", entry.getKey());
-			}
-		}
-
-		//process aerospike special fields
-		if (!selectAll) {
-			for (Map.Entry<String, FieldMapper> fieldMapper : fieldMappers.entrySet()) {
-				if (fieldMapper.getValue() != null && query.contains(fieldMapper.getValue().getFieldName())) {
-					query = query.replaceAll("\\b" + fieldMapper.getValue().getFieldName() + "\\b", fieldMapper.getKey() + " as " + fieldMapper.getValue().getFieldName());
-				}
-			}
-		}
-
-
-		log.info("query after transformation: {}", query);
-		return query;
-	}
-
-	public String join(List<String> fields, String delimiter) {
-		StringBuffer output = new StringBuffer();
-		for (String field : fields) {
-			output.append(field + delimiter);
-		}
-		return output.substring(0, output.length() - delimiter.length());
-	}
-
-
-	public Class<?> findEntity(String entitiesPackageName, String query) throws QueryParserException {
+	public Class<?> findEntity(String entitiesPackageName, String query) throws ParserException {
 		Class<?> clazz;
 		QueryFields queryFields = QueryParser.parseQuery(query);
 		String setName = queryFields.getSet();
@@ -189,6 +119,4 @@ public class QueryUtils {
 		}
 		return clazz;
 	}
-
-
 }

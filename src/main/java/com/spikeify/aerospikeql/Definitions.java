@@ -1,4 +1,4 @@
-package com.spikeify.aerospikeql.common;
+package com.spikeify.aerospikeql;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -14,6 +14,12 @@ public class Definitions {
 	public static final String groupByKeySeparator = ":"; //separator for groupBy key, it can be empty string.
 	public static final String nullValue = "null"; //when field had no value, we replace it with nullValue
 	public static final String millisToSec = String.valueOf(1000); //currentTime is in millis;
+
+	public static final String primaryKey = "PRIMARY_KEY";
+	public static final String generation = "GENERATION";
+	public static final String expiration = "EXPIRATION";
+	public static final String digest = "DIGEST";
+
 
 	public static final List<String> aggregations = new ArrayList<String>() {{
 		add("MAX");
@@ -54,10 +60,10 @@ public class Definitions {
 	};
 
 	public static final List<String> recordFieldTransformations = new ArrayList<String>() {{
-		add("PRIMARY_KEY");
-		add("TTL");
-		add("GENERATION");
-		add("DIGEST");
+		add(primaryKey);
+		add(expiration);
+		add(generation);
+		add(digest);
 	}};
 
 	public static final List<String> singleFieldTransformations = new ArrayList<String>() {{
@@ -79,7 +85,7 @@ public class Definitions {
 		add("LIST_MATCH");
 		add("LIST_RETRIEVE");
 		add("STRING_CONTAINS");
-		add("STRING_MATCH");
+		add("STRING_RETRIEVE");
 		add("REGEXP_MATCH");
 		add("IFNULL");
 	}};

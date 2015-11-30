@@ -1,7 +1,7 @@
 package com.spikeify.aerospikeql.parse.fields;
 
-import com.spikeify.aerospikeql.common.Definitions;
-import com.spikeify.aerospikeql.parse.QueryParserException;
+import com.spikeify.aerospikeql.Definitions;
+import com.spikeify.aerospikeql.parse.ParserException;
 import com.spikeify.aerospikeql.parse.fields.statements.AggregationStatement;
 import com.spikeify.aerospikeql.parse.fields.statements.BasicStatement;
 import com.spikeify.aerospikeql.parse.fields.statements.Statement;
@@ -32,9 +32,9 @@ public class SelectField {
 	/**
 	 * Split every select field on AS and set aliases
 	 *
-	 * @throws QueryParserException - alias has incorrect name
+	 * @throws ParserException - alias has incorrect name
 	 */
-	public void setAliases() throws QueryParserException {
+	public void setAliases() throws ParserException {
 		List<String> newSelectList = new ArrayList<>();
 
 		for (String field : selectList) {
@@ -44,11 +44,11 @@ public class SelectField {
 			if (names.length == 1) {
 				if (names[0].length() > 14) {
 					String message = "Statement " + names[0] + " is too long. Please define an alias.";
-					throw new QueryParserException(message);
+					throw new ParserException(message);
 
 				} else if (names[0].contains("(")) {
 					String message = "Please define an alias for field " + names[0] + ".";
-					throw new QueryParserException(message);
+					throw new ParserException(message);
 				}
 				aliases.add(names[0]);
 
@@ -56,10 +56,10 @@ public class SelectField {
 			} else if (names.length == 2) {
 				if (names[1].length() > 14) {
 					String message = "Alias " + names[1] + " is too long. Please define shorter alias.";
-					throw new QueryParserException(message);
+					throw new ParserException(message);
 				} else if (names[1].endsWith("_")) {
 					String message = "Aliases should not end with _ character: " + names[1] + ".";
-					throw new QueryParserException(message);
+					throw new ParserException(message);
 				}
 				aliases.add(names[1]);
 			}

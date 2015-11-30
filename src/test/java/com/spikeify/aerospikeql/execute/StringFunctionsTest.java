@@ -1,7 +1,7 @@
 package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.AerospikeQl;
+import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
 import com.spikeify.annotations.UserKey;
@@ -19,7 +19,7 @@ public class StringFunctionsTest {
 
 	Spikeify sfy;
 
-	AerospikeQl aerospikeQl;
+	AerospikeQlService aerospikeQlService;
 
 
 	@Before
@@ -27,7 +27,7 @@ public class StringFunctionsTest {
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
 		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQl = new AerospikeQl(sfy, queryUtils);
+		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
 		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
 	}
 
@@ -65,7 +65,7 @@ public class StringFunctionsTest {
 	@Test
 	public void testRegexMatch1(){
 		createSet();
-		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where REGEXP_MATCH(value1, '.*bb.*')").asType(Entity.class).getResultsData();
+		List<Entity> entityList = aerospikeQlService.execAdhoc(Entity.class, "select * from test.Entity where REGEXP_MATCH(value1, '.*bb.*')").now();
 		assertEquals(1L, entityList.size());
 		assertEquals("Abba", entityList.get(0).value1);
 	}
@@ -74,7 +74,7 @@ public class StringFunctionsTest {
 	@Test
 	public void testRegexMatch2(){
 		createSet();
-		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where REGEXP_MATCH(value1, '.*bb.*') or REGEXP_MATCH(value1, '.*m S') order by value1").asType(Entity.class).getResultsData();
+		List<Entity> entityList = aerospikeQlService.execAdhoc(Entity.class, "select * from test.Entity where REGEXP_MATCH(value1, '.*bb.*') or REGEXP_MATCH(value1, '.*m S') order by value1").now();
 		assertEquals(2L, entityList.size());
 		assertEquals("Abba", entityList.get(0).value1);
 		assertEquals("Sam Smith", entityList.get(1).value1);
@@ -83,7 +83,7 @@ public class StringFunctionsTest {
 //	@Test
 //	public void testRegexCaseInsensitive(){
 //		createSet();
-//		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where REGEXP_MATCH(value1, '.*BB.*')").asType(Entity.class).getResultsData();
+//		List<Entity> entityList = aerospikeQlService.execAdhoc("select * from test.Entity where REGEXP_MATCH(value1, '.*BB.*')").now(Entity.class).;
 //		assertEquals(1L, entityList.size());
 //		assertEquals("Abba", entityList.get(0).value1);
 //	}
@@ -91,7 +91,7 @@ public class StringFunctionsTest {
 	@Test
 	public void testStringContains1(){
 		createSet();
-		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where STRING_CONTAINS(value1, 'bb') order by value1").asType(Entity.class).getResultsData();
+		List<Entity> entityList = aerospikeQlService.execAdhoc(Entity.class, "select * from test.Entity where STRING_CONTAINS(value1, 'bb') order by value1").now();
 		assertEquals(1L, entityList.size());
 		assertEquals("Abba", entityList.get(0).value1);
 	}
@@ -99,7 +99,7 @@ public class StringFunctionsTest {
 	@Test
 	public void testStringContains2(){
 		createSet();
-		List<Entity> entityList = aerospikeQl.runAdhocQuery("select * from test.Entity where STRING_CONTAINS(value1, 'ee') order by value1").asType(Entity.class).getResultsData();
+		List<Entity> entityList = aerospikeQlService.execAdhoc(Entity.class, "select * from test.Entity where STRING_CONTAINS(value1, 'ee') order by value1").now();
 		assertEquals(1L, entityList.size());
 		assertEquals("Queens", entityList.get(0).value1);
 	}
@@ -107,11 +107,11 @@ public class StringFunctionsTest {
 	@Test
 	public void testStringMatch1(){
 		createSet();
-		List<Map<String, Object>> resultsMap = aerospikeQl.runAdhocQuery("select STRING_MATCH(value1, 'Abba') as value1 from test.Entity order by value1 desc").asMap().getResultsData();
-		assertEquals(6L, resultsMap.size());
-		assertEquals("Abba", resultsMap.get(0).get("value1"));
-		for(int i=1; i<resultsMap.size(); i++){
-			assertEquals(null, resultsMap.get(i).get("value1"));
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc("select STRING_RETRIEVE(value1, 'Abba') as value1 from test.Entity order by value1 desc").now();
+		assertEquals(6L, resultsList.size());
+		assertEquals("Abba", resultsList.get(0).get("value1"));
+		for(int i=1; i<resultsList.size(); i++){
+			assertEquals(null, resultsList.get(i).get("value1"));
 		}
 	}
 

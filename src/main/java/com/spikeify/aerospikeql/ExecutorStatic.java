@@ -4,33 +4,33 @@ import com.aerospike.client.Value;
 import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.execute.ResultsMap;
-import com.spikeify.aerospikeql.execute.RetrieveResults;
-import com.spikeify.aerospikeql.parse.QueryFields;
+import com.spikeify.aerospikeql.execute.Retrieve;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-class QueryStatic extends QueryAdhoc implements Query {
+class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
 	private String queryName;
 
-	public QueryStatic(Spikeify sfy,
-	                   QueryUtils queryUtils,
-	                   String query,
-	                   String queryName) {
-		super(sfy, queryUtils, query);
+	public ExecutorStatic(Spikeify sfy,
+	                      QueryUtils queryUtils,
+	                      Class<T> tClass,
+	                      String query,
+	                      String queryName) {
+		super(sfy, queryUtils, tClass, query);
 		this.queryName = queryName;
 	}
 
 
 	@Override
-	protected ResultsMap execQuery() {
+	protected List<Map<String, Object>> execQuery() {
 		if (query != null) {
-
 			if (queryName == null) {
 				queryName = UUID.randomUUID().toString();
 			}
 
-			QueryFields queryFields = queryUtils.addUdf(queryName, query);
+			queryFields = queryUtils.addUdf(queryName, query);
 			if (queryFields != null) {
 				Statement statement = new Statement();
 				statement.setNamespace(queryFields.getNamespace());
@@ -52,8 +52,10 @@ class QueryStatic extends QueryAdhoc implements Query {
 				}
 
 				ResultSet rs = sfy.getClient().queryAggregate(queryPolicy, statement, queryName, "main", Value.get(currentTimeMillis), Value.get(conditionInjection)); //pass parameters to lua script
-				RetrieveResults retrieveResults = new RetrieveResults(queryFields, rs, currentTimeMillis);
-				return retrieveResults.retrieve();
+				Retrieve retrieveResults = new Retrieve(queryFields, rs, currentTimeMillis);
+				List<Map<String, Object>> resultList = retrieveResults.retrieve();
+				diagnostics = retrieveResults.getDiagnostics();
+				return resultList;
 
 			}
 		}
