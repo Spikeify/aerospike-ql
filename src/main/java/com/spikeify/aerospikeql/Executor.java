@@ -43,6 +43,14 @@ public interface Executor<T> {
 	 */
 	Executor<T> setCondition(String condition);
 
+
+	/**
+	 * transform query to match fields in Entity (longer bin names, primary key etc) but return results in a Map<String, Object>
+	 *
+	 * @return Executor
+	 */
+	<E>Executor<T> mapQuery(Class<E> clazz);
+
 	/**
 	 * Get information about of query execution
 	 *

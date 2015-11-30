@@ -78,6 +78,21 @@ public class MappingEntityTest {
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(5, resultsList.size());
 
+	}
+
+	@Test
+	public void testDisableReverseEntityMapping() throws Exception {
+		createSet(100);
+		String query = "select * from " + TestAerospike.getDefaultNamespace() + ".Entity1 order by value2";
+
+		List<Map<String,Object>> resultsList = aerospikeQlService.execAdhoc(query).mapQuery(Entity1.class).now();
+		assertEquals(101, resultsList.size());
+		long count = 2;
+		for (Map<String, Object> entity : resultsList) {
+			if (count < 101) {
+				assertEquals(count++, entity.get("value2"));
+			}
+		}
 
 	}
 }

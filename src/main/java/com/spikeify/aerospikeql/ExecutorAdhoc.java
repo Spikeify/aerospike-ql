@@ -31,6 +31,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 	QueryPolicy queryPolicy;
 	Long currentTimeMillis;
 	private EntityMetaData entityMetaData;
+	private Class<?> mappingClass;
 
 
 	public ExecutorAdhoc(Spikeify sfy,
@@ -72,6 +73,12 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return this;
 	}
 
+	@Override
+	public <E>Executor<T> mapQuery(Class<E> clazz) {
+		mappingClass = clazz;
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> now() {
@@ -81,6 +88,9 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		}
 
 		if (tClass == null) {
+			if(mappingClass != null){
+				query = queryTransformation(mappingClass, query);
+			}
 			List<Map<String, Object>> resultList = execQuery();
 			return (List<T>) resultList;
 
