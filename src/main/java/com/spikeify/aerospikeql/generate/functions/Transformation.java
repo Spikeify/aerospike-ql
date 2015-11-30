@@ -7,12 +7,12 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 24/07/15.
-
- * Logic for transformation functions (DATEDIFF, etc.).
+ *
+ * Logic for transformation functions.
  */
 public class Transformation extends Function {
 
-	public Transformation() {
+	private Transformation() {
 		nameArg1 = "value1";
 		nameArg2 = "value2";
 		streamOperation = "";
@@ -25,7 +25,7 @@ public class Transformation extends Function {
 		return transformation;
 	}
 
-	public void setFunction(String functionName) {
+	private void setFunction(String functionName) {
 		this.functionName = functionName;
 		String generatedCode = "";
 
@@ -86,6 +86,8 @@ public class Transformation extends Function {
 				generatedCode = addDateDiffMSLogic();
 			} else if (functionName.equalsIgnoreCase("MAP_RETRIEVE")) {
 				generatedCode = addMapRetrieveLogic();
+			} else if (functionName.equalsIgnoreCase("MAP_CONTAINS")) {
+				generatedCode = addMapContainsLogic();
 			} else if (functionName.equalsIgnoreCase("REGEXP_MATCH")) {
 				generatedCode = addStringContainsLogic();
 			} else if (functionName.equalsIgnoreCase("IFNULL")) {
@@ -383,6 +385,13 @@ public class Transformation extends Function {
 		String generatedCode = "";
 		String tabs = getTabs(level + 1);
 		generatedCode += tabs + "return " + nameArg1 + "[" + nameArg2 + "]\n";
+		return generatedCode;
+	}
+
+	private String addMapContainsLogic() {
+		String generatedCode = "";
+		String tabs = getTabs(level + 1);
+		generatedCode += tabs + "return " + nameArg1 + "[" + nameArg2 + "] ~= nil\n";
 		return generatedCode;
 	}
 

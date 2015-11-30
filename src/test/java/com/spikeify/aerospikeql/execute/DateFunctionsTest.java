@@ -2,10 +2,9 @@ package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.AerospikeQlService;
-import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
+import com.spikeify.aerospikeql.entities.DateEntity;
 import com.spikeify.aerospikeql.parse.ParserException;
-import com.spikeify.annotations.UserKey;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -19,29 +18,27 @@ import static org.junit.Assert.assertEquals;
 
 public class DateFunctionsTest {
 
-	Spikeify sfy;
-
-	AerospikeQlService aerospikeQlService;
+	private Spikeify sfy;
+	private AerospikeQlService aerospikeQlService;
 
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp(){
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
-		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		aerospikeQlService = new AerospikeQlService(sfy);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	@After
 	public void tearDown() {
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	private void createSet(int numRecords) {
-		Entity entity;
+		DateEntity entity;
 		for (int i = 1; i < numRecords + 1; i++) {
-			entity = new Entity();
+			entity = new DateEntity();
 			entity.key = String.valueOf(i);
 			entity.timestamp = 1446109765011L;
 			entity.timestamp2 = 1445674654000L;
@@ -55,7 +52,7 @@ public class DateFunctionsTest {
 		}
 
 		int i = numRecords + 2;
-		entity = new Entity();
+		entity = new DateEntity();
 		entity.key = String.valueOf(i);
 		entity.timestamp = null;
 		entity.timestamp2 = null;
@@ -71,7 +68,7 @@ public class DateFunctionsTest {
 		createSet(5);
 		Long currentTime = 1446109765000L;
 
-		String query = "select current_time() as currentTime from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select current_time() as currentTime from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).setCurrentTime(currentTime).now();
 
 		DateTime dateTime = new DateTime(currentTime).toDateTime(DateTimeZone.UTC);
@@ -87,7 +84,7 @@ public class DateFunctionsTest {
 		createSet(5);
 
 		Long currentTime = 1446109765000L;
-		String query = "select current_date() as currentDate from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select current_date() as currentDate from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).setCurrentTime(currentTime).now();
 
 		DateTime dateTime = new DateTime(currentTime).toDateTime(DateTimeZone.UTC);
@@ -103,7 +100,7 @@ public class DateFunctionsTest {
 		createSet(5);
 
 		Long currentTime = 1446109765000L;
-		String query = "select current_timestamp() as timestamp from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select current_timestamp() as timestamp from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).setCurrentTime(currentTime).now();
 
 		DateTime dateTime = new DateTime(currentTime).toDateTime(DateTimeZone.UTC);
@@ -119,7 +116,7 @@ public class DateFunctionsTest {
 		createSet(5);
 
 		Long currentTime = 1446109765000L;
-		String query = "select now() as now from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select now() as now from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).setCurrentTime(currentTime).now();
 
@@ -132,7 +129,7 @@ public class DateFunctionsTest {
 	public void testUTC_MS_TO_SECOND() throws ParserException {
 		createSet(5);
 
-		String query = "select UTC_MS_TO_SECOND(timestamp) as timestamp from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select UTC_MS_TO_SECOND(timestamp) as timestamp from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		Long expected = 1446109765000L;
@@ -147,7 +144,7 @@ public class DateFunctionsTest {
 	public void testUTC_MS_TO_MINUTE() throws ParserException {
 		createSet(5);
 
-		String query = "select UTC_MS_TO_MINUTE(timestamp) as timestamp from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select UTC_MS_TO_MINUTE(timestamp) as timestamp from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		Long expected = 1446109740000L;
@@ -162,7 +159,7 @@ public class DateFunctionsTest {
 	public void testUTC_MS_TO_HOUR() throws ParserException {
 		createSet(5);
 
-		String query = "select UTC_MS_TO_HOUR(timestamp) as timestamp from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select UTC_MS_TO_HOUR(timestamp) as timestamp from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		Long expected = 1446109200000L;
@@ -178,7 +175,7 @@ public class DateFunctionsTest {
 	public void testUTC_MS_TO_DAY() throws ParserException {
 		createSet(5);
 
-		String query = "select UTC_MS_TO_DAY(timestamp) as timestamp from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select UTC_MS_TO_DAY(timestamp) as timestamp from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		Long expected = 1446076800000L;
@@ -206,7 +203,7 @@ public class DateFunctionsTest {
 						"month('2015-10-29') as months2, " +
 						"year('2015-10-29 09:57:26 UTC') as years1, " +
 						"year('2015-10-29') as years2 " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+						"from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		Long expectedSeconds = 26L;
@@ -247,7 +244,7 @@ public class DateFunctionsTest {
 						"month(date1) as months2, " +
 						"year(dateTime) as years1, " +
 						"year(date1) as years2 " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+						"from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		Long expectedSeconds = 26L;
@@ -278,7 +275,7 @@ public class DateFunctionsTest {
 	public void testDateDiffMS() throws ParserException {
 		createSet(5);
 
-		String query = "select datediff_ms(timestamp, timestamp2) as datediff from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select datediff_ms(timestamp, timestamp2) as datediff from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		for (Map<String, Object> entry : resultsList) {
 			if (entry.get("datediff") != null) {
@@ -291,7 +288,7 @@ public class DateFunctionsTest {
 	@Test
 	public void testMSEC_TO_TIMESTAMP() throws ParserException {
 		createSet(5);
-		String query = "select msec_to_timestamp(timestamp) as timestamp from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select msec_to_timestamp(timestamp) as timestamp from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 		for (Map<String, Object> entry : resultsList) {
@@ -305,7 +302,7 @@ public class DateFunctionsTest {
 	@Test
 	public void testDate() throws ParserException {
 		createSet(5);
-		String query = "select date(dateTime) as date from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select date(dateTime) as date from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 
@@ -320,7 +317,7 @@ public class DateFunctionsTest {
 	@Test
 	public void testTime() throws ParserException {
 		createSet(5);
-		String query = "select time(dateTime) as time from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select time(dateTime) as time from " + TestAerospike.getDefaultNamespace() + ".DateEntity";
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 
@@ -330,17 +327,6 @@ public class DateFunctionsTest {
 			}
 		}
 
-	}
-
-	private class Entity {
-		@UserKey
-		public String key;
-		public Long value;
-		public Long timestamp;
-		public Long timestamp2;
-		public String time1;
-		public String date1;
-		public String dateTime;
 	}
 
 

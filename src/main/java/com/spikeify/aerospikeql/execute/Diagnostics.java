@@ -2,19 +2,19 @@ package com.spikeify.aerospikeql.execute;
 
 /**
  * Created by roman on 17/08/15.
-
+ *
  * Query runtime diagnostics
  */
 public class Diagnostics {
 
-	private final Long startTime;
-	private final Long endTime;
-	private final Long executionTime;
-	private final Long rowsRetrieved;
-	private final Long rowsQueried;
-	private final Long columnsQueried;
+	private final long startTime;
+	private final long endTime;
+	private final long executionTime;
+	private final long rowsRetrieved;
+	private final long rowsQueried;
+	private final long columnsQueried;
 
-	public Diagnostics(Long startTime, Long endTime, Long executionTime, Long rowsRetrieved, Long rowsQueried, Long columnsQueried) {
+	public Diagnostics(long startTime, long endTime, long executionTime, long rowsRetrieved, long rowsQueried, long columnsQueried) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.executionTime = executionTime;
@@ -23,15 +23,15 @@ public class Diagnostics {
 		this.columnsQueried = columnsQueried;
 	}
 
-	public Long getStartTime() {
+	public long getStartTime() {
 		return startTime;
 	}
 
-	public Long getEndTime() {
+	public long getEndTime() {
 		return endTime;
 	}
 
-	public Long getExecutionTime() {
+	public long getExecutionTime() {
 		return executionTime;
 	}
 
@@ -39,7 +39,7 @@ public class Diagnostics {
 		return rowsRetrieved;
 	}
 
-	public Long getRowsQueried() {
+	public long getRowsQueried() {
 		return rowsQueried;
 	}
 

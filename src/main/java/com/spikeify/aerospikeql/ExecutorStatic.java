@@ -25,12 +25,13 @@ class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
 
 	@Override
 	protected List<Map<String, Object>> execQuery() {
-		if (query != null) {
-			if (queryName == null) {
-				queryName = UUID.randomUUID().toString();
+		if (query != null && queryName != null) {
+			// Execute aggregation query with LUA
+			if (currentTimeMillis == null) {
+				currentTimeMillis = System.currentTimeMillis(); // used for now() function in select, having and measuring query execution time
 			}
 
-			queryFields = queryUtils.addUdf(queryName, query);
+			queryFields = queryUtils.getQueryFiels(query);
 			if (queryFields != null) {
 				Statement statement = new Statement();
 				statement.setNamespace(queryFields.getNamespace());
@@ -39,11 +40,6 @@ class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
 				//secondary index
 				if (filters != null) {
 					statement.setFilters(filters);
-				}
-
-				// Execute aggregation query with LUA
-				if (currentTimeMillis == null) {
-					currentTimeMillis = System.currentTimeMillis(); // used for now() function in select, having and measuring query execution time
 				}
 
 				String conditionInjection = "";
@@ -56,7 +52,6 @@ class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
 				List<Map<String, Object>> resultList = retrieveResults.retrieve();
 				diagnostics = retrieveResults.getDiagnostics();
 				return resultList;
-
 			}
 		}
 		return null;

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 16/07/15.
-
+ *
  * Data structure with fields of SQL query.
  */
 public class QueryFields {

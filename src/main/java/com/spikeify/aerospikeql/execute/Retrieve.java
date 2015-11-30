@@ -6,22 +6,21 @@ import com.spikeify.aerospikeql.Definitions;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import com.spikeify.aerospikeql.parse.fields.HavingField;
 import com.spikeify.aerospikeql.parse.fields.OrderField;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.math.BigDecimal;
 import java.util.*;
 
 /**
  * Created by roman on 17/08/15.
-
+ *
  * Retrieve a List<Map<String, Object>> data structure (ResultsSet and QueryDiagnostics)
  */
 
 public class Retrieve {
 
-	private QueryFields queryFields;
-	private ResultSet rs;
-	private long overallStart;
+	private final QueryFields queryFields;
+	private final ResultSet rs;
+	private final long overallStart;
 	private Diagnostics diagnostics;
 
 	public Retrieve(QueryFields queryFields, ResultSet rs, long overallStart) {
@@ -222,13 +221,11 @@ public class Retrieve {
 					String first = one != null && one.containsKey(key) && one.get(key) != null ? one.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
 					String second = two != null && two.containsKey(key) && two.get(key) != null ? two.get(key).toString() : sortOrder == 1 ? String.valueOf(Integer.MAX_VALUE) : String.valueOf(Integer.MIN_VALUE);
 
-					if (one != null && one.containsKey(key) && two != null && two.containsKey(key) && (one.get(key) instanceof Map || two.get(key) instanceof Map || one.get(key) instanceof List || two.get(key) instanceof List) ) {
+					if (one != null && one.containsKey(key) && two != null && two.containsKey(key) && (one.get(key) instanceof Map || two.get(key) instanceof Map || one.get(key) instanceof List || two.get(key) instanceof List)) {
 						return 0;
-					}
-					else if (one != null && one.containsKey(key) && two != null && two.containsKey(key) && (one.get(key) instanceof String || two.get(key) instanceof String || one.get(key) instanceof Boolean || two.get(key) instanceof Boolean) ) {
+					} else if (one != null && one.containsKey(key) && two != null && two.containsKey(key) && (one.get(key) instanceof String || two.get(key) instanceof String || one.get(key) instanceof Boolean || two.get(key) instanceof Boolean)) {
 						return first.compareTo(second) * orderField.getOrderDirection().get(key);
-					}
-					else if (!first.equals(second)) {
+					} else if (!first.equals(second)) {
 						return new BigDecimal(first).compareTo(new BigDecimal(second)) * orderField.getOrderDirection().get(key);
 					}
 

@@ -7,8 +7,8 @@ import com.spikeify.aerospikeql.parse.fields.statements.Statement;
 
 /**
  * Created by roman on 17/07/15.
-
- * * Logic for reducer code in lua script
+ *
+ * Logic for reducer code in lua script
  */
 public class GroupReducer extends Function {
 
@@ -209,16 +209,14 @@ public class GroupReducer extends Function {
 		String tabs3 = getTabs(level + 3);
 		String limitValue = isMin ? Definitions.LuaValues.Min.value : Definitions.LuaValues.Max.value;
 		String operation = isMin ? "min" : "max";
-		String generatedCode = tabs3 + "val1[k] = math." + operation + "(val1[k] or " + limitValue + ", v)\n";
-		return generatedCode;
+		return tabs3 + "val1[k] = math." + operation + "(val1[k] or " + limitValue + ", v)\n";
 
 	}
 
 	private String addMinMaxGroupLogic(AggregationStatement aggregationField, String groupBy, boolean minOperation) {
 		String tabs3 = getTabs(level + 3);
 		String comparisonOperation = minOperation ? "min" : "max";
-		String generatedCode = tabs3 + "val1" + groupBy + "[\"" + aggregationField.getAlias() + "\"] = math." + comparisonOperation + "(val1 " + groupBy + "[\"" + aggregationField.getAlias() + "\"], v[\"" + aggregationField.getAlias() + "\"])\n";
+		return tabs3 + "val1" + groupBy + "[\"" + aggregationField.getAlias() + "\"] = math." + comparisonOperation + "(val1 " + groupBy + "[\"" + aggregationField.getAlias() + "\"], v[\"" + aggregationField.getAlias() + "\"])\n";
 
-		return generatedCode;
 	}
 }

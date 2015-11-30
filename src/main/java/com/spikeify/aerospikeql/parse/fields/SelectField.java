@@ -16,9 +16,9 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 17/07/15.
-
+ *
  * Select field data structure is a sub structure of query statements.
-
+ *
  * Select statements can contain statements, field transformations, field aggregations.
  */
 public class SelectField {
@@ -26,7 +26,7 @@ public class SelectField {
 	private final List<Statement> statements = new ArrayList<>(); //main data structure with select statements
 	private final List<String> aliases = new ArrayList<>(); //aliases of statements that are print out
 	private List<String> selectList = new ArrayList<>(); //helper data structure:  it is used to fill statements data structure
-	private Set<String> distinctCounters = new HashSet<>();
+	private final Set<String> distinctCounters = new HashSet<>();
 	private boolean aggregations = false; //if query contains aggregations
 
 	/**
@@ -71,14 +71,14 @@ public class SelectField {
 
 	/**
 	 * classify statements in select statements. We have 3 types of statements: basic, transformation and aggregation.
-
+	 * <p/>
 	 * basic: select timestamp
 	 * transformation: select hour(timestamp) as hour
 	 * aggregation: sum(duration) as sumDuration
 	 */
 
 	public void setFields() {
-		Pattern patternAggregations = Definitions.getPattern(Definitions.aggregations);
+		Pattern patternAggregations = Definitions.getAggregationsPattern();
 		Pattern patternDistinct = Pattern.compile("DISTINCT (.+)", Pattern.CASE_INSENSITIVE);
 		Pattern patternIf = Pattern.compile("CASE WHEN (.*) THEN (.*) END", Pattern.CASE_INSENSITIVE);
 		Pattern patternIfElse = Pattern.compile("CASE WHEN (.*) THEN (.*) ELSE (.*) END", Pattern.CASE_INSENSITIVE);

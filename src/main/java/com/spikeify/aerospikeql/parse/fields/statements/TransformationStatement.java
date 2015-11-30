@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.parse.fields.statements;
 
 /**
  * Created by roman on 09/08/15.
-
+ *
  * TransformationStatement is a field in select statements that makes a transformation on a field. E.g. select day(timestamp)
  */
 public class TransformationStatement implements Statement {
@@ -12,25 +12,15 @@ public class TransformationStatement implements Statement {
 	private final boolean nested;
 
 
-	public TransformationStatement(String alias, String condition, boolean nested) {
+	private TransformationStatement(String alias, String condition, boolean nested) {
 		this.alias = alias;
 		this.condition = condition;
 		this.nested = nested;
 	}
 
 	@Override
-	public String getField() {
-		return "";
-	}
-
-	@Override
 	public String getAlias() {
 		return alias;
-	}
-
-	@Override
-	public String getOperation() {
-		return "";
 	}
 
 	public String getCondition() {

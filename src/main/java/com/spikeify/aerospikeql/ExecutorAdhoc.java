@@ -20,17 +20,17 @@ import java.util.*;
 class ExecutorAdhoc<T> implements Executor<T> {
 
 	private static final Logger log = LoggerFactory.getLogger(ExecutorAdhoc.class);
-	protected QueryFields queryFields;
-	protected Diagnostics diagnostics;
-	protected final Spikeify sfy;
-	protected final QueryUtils queryUtils;
-	protected Class<T> tClass;
-	protected String query;
-	protected String condition;
-	protected Filter[] filters;
-	protected QueryPolicy queryPolicy;
-	protected Long currentTimeMillis;
-	protected EntityMetaData entityMetaData;
+	final Spikeify sfy;
+	final QueryUtils queryUtils;
+	QueryFields queryFields;
+	Diagnostics diagnostics;
+	private final Class<T> tClass;
+	String query;
+	String condition;
+	Filter[] filters;
+	QueryPolicy queryPolicy;
+	Long currentTimeMillis;
+	private EntityMetaData entityMetaData;
 
 
 	public ExecutorAdhoc(Spikeify sfy,
@@ -59,9 +59,8 @@ class ExecutorAdhoc<T> implements Executor<T> {
 	 * This setter is only for unit testing
 	 *
 	 * @param currentTimeMillis current time in milliseconds
-	 * @return
+	 * @return ExecutorAdhoc
 	 */
-	@Override
 	public Executor<T> setCurrentTime(Long currentTimeMillis) {
 		this.currentTimeMillis = currentTimeMillis;
 		return this;
@@ -73,18 +72,19 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> now() {
-		if(tClass != null && !isSelectAll(query)){
+		if (tClass != null && !isSelectAll(query)) {
 			log.error("Typed queries can be only used with SELECT *.");
 			return null;
 		}
 
-		if(tClass == null){
+		if (tClass == null) {
 			List<Map<String, Object>> resultList = execQuery();
 			return (List<T>) resultList;
 
-		}else{
+		} else {
 			query = queryTransformation(tClass, query);
 			ClassMapper<T> classMapper = new ClassMapper<>(tClass);
 
@@ -109,8 +109,8 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return null;
 	}
 
-	private void fillInstance(ClassMapper<T> classMapper, Map<String, Object> entity, T instance){
-		if(entity.containsKey(entityMetaData.primaryKey)) {
+	private void fillInstance(ClassMapper<T> classMapper, Map<String, Object> entity, T instance) {
+		if (entity.containsKey(entityMetaData.primaryKey)) {
 			if (entityMetaData.isPrimaryKeyString()) {
 				classMapper.setUserKey(instance, (String) entity.get(entityMetaData.getPrimaryKey()));
 			} else {
@@ -118,7 +118,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 			}
 		}
 
-		if(entityMetaData.getGenerationKey() != null && entityMetaData.getExpirationKey() != null &&  entity.containsKey(entityMetaData.getGenerationKey()) && entity.containsKey(entityMetaData.getExpirationKey())) {
+		if (entityMetaData.getGenerationKey() != null && entityMetaData.getExpirationKey() != null && entity.containsKey(entityMetaData.getGenerationKey()) && entity.containsKey(entityMetaData.getExpirationKey())) {
 			classMapper.setMetaFieldValues(instance, queryFields.getNamespace(), queryFields.getSet(), (int) entity.get(entityMetaData.getGenerationKey()), (int) entity.get(entityMetaData.getExpirationKey()));
 		}
 		classMapper.setFieldValues(instance, entity);
@@ -139,8 +139,13 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return instance;
 	}
 
-	protected List<Map<String, Object>> execQuery() {
+	List<Map<String, Object>> execQuery() {
 		if (query != null) {
+			// Execute aggregation query with LUA
+			if (currentTimeMillis == null) {
+				currentTimeMillis = System.currentTimeMillis(); // used for now() function in select, having and measuring query execution time
+			}
+
 			String queryName = UUID.randomUUID().toString();
 
 			queryFields = queryUtils.addUdf(queryName, query);
@@ -152,11 +157,6 @@ class ExecutorAdhoc<T> implements Executor<T> {
 				//secondary index
 				if (filters != null) {
 					statement.setFilters(filters);
-				}
-
-				// Execute aggregation query with LUA
-				if (currentTimeMillis == null) {
-					currentTimeMillis = System.currentTimeMillis(); // used for now() function in select, having and measuring query execution time
 				}
 
 				String conditionInjection = "";
@@ -177,7 +177,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 
 	}
 
-	protected String queryTransformation(final Class clazz, String query) {
+	String queryTransformation(final Class clazz, String query) {
 		log.info("query before transformation: {}", query);
 
 		Map<String, FieldMapper> fieldMappers = new HashMap<String, FieldMapper>() {{
@@ -188,17 +188,17 @@ class ExecutorAdhoc<T> implements Executor<T> {
 
 
 		String primaryKey = null;
-		if(fieldMappers.get(Definitions.primaryKey) != null){
+		if (fieldMappers.get(Definitions.primaryKey) != null) {
 			primaryKey = fieldMappers.get(Definitions.primaryKey).getFieldName();
 		}
 
 		String generationKey = null;
-		if(fieldMappers.get(Definitions.generation) != null){
+		if (fieldMappers.get(Definitions.generation) != null) {
 			generationKey = fieldMappers.get(Definitions.generation).getFieldName();
 		}
 
 		String expirationKey = null;
-		if(fieldMappers.get(Definitions.expiration) != null){
+		if (fieldMappers.get(Definitions.expiration) != null) {
 			expirationKey = fieldMappers.get(Definitions.expiration).getFieldName();
 		}
 
@@ -222,7 +222,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 			for (Map.Entry<String, FieldMapper> fieldMapper : fieldMappers.entrySet()) {
 				if (fieldMapper.getValue() != null) {
 					bins = bins.replaceAll("\\b" + fieldMapper.getValue().getFieldName() + "\\b", fieldMapper.getKey() + "\\(\\)" + " as " + fieldMapper.getValue().getFieldName());
-					if(fieldMapper.getValue().field.getType().getName().equals("java.lang.String")){
+					if (fieldMapper.getValue().field.getType().getName().equals("java.lang.String")) {
 						entityMetaData.setPrimaryKeyString(true);
 					}
 
@@ -252,7 +252,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return query;
 	}
 
-	public String join(List<String> fields, String delimiter) {
+	private String join(List<String> fields, String delimiter) {
 		StringBuilder output = new StringBuilder();
 		for (String field : fields) {
 			output.append(field).append(delimiter);
@@ -260,7 +260,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return output.substring(0, output.length() - delimiter.length());
 	}
 
-	protected boolean isSelectAll(String query){
+	private boolean isSelectAll(String query) {
 		query = query.trim().replaceAll(" +", " ");
 		return query.toLowerCase().contains("select *");
 	}
@@ -271,10 +271,10 @@ class ExecutorAdhoc<T> implements Executor<T> {
 		return diagnostics;
 	}
 
-	private class EntityMetaData{
-		private String primaryKey;
-		private String generationKey;
-		private String expirationKey;
+	private class EntityMetaData {
+		private final String primaryKey;
+		private final String generationKey;
+		private final String expirationKey;
 		private boolean primaryKeyString;
 
 		public EntityMetaData(String primaryKey, String generationKey, String expirationKey) {

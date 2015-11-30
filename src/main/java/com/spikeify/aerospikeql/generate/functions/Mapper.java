@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Created by roman on 16/07/15.
-
+ *
  * Logic for map code in lua script
  */
 public class Mapper extends Function {

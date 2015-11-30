@@ -2,11 +2,11 @@ package com.spikeify.aerospikeql;
 
 import com.aerospike.client.Language;
 import com.aerospike.client.task.RegisterTask;
-import com.spikeify.*;
+import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.generate.CodeGenerator;
+import com.spikeify.aerospikeql.parse.ParserException;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import com.spikeify.aerospikeql.parse.QueryParser;
-import com.spikeify.aerospikeql.parse.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,23 +23,58 @@ public class QueryUtils {
 	public QueryUtils(Spikeify sfy,
 	                  String udfFolder) {
 		this.sfy = sfy;
+		if(udfFolder == null){
+			udfFolder = "udf/";
+		}
 		this.udfFolder = udfFolder;
 	}
 
-	public void removeUdf(String udfName) {
+	public QueryUtils(Spikeify sfy) {
+		this.sfy = sfy;
+		udfFolder = "udf/";
+	}
+
+	/**
+	 * Unregister udf and remove it
+	 * @param queryName - name of the query
+	 */
+	public void removeUdf(String queryName) {
 		try {
-			String clientUdfPath = udfFolder + udfName + ".lua";
+			String clientUdfPath = udfFolder + queryName + ".lua";
 			log.info("Deleting local LUA file '{}'", clientUdfPath);
 			// delete local UDF file
 			File file = new File(clientUdfPath);
-			file.delete();
+			boolean wasDeleted = file.delete();
+			if (wasDeleted){
+				log.info("{} was deleted", queryName);
+			}
 		} catch (Exception e) {
 			log.error("Error deleting file ", e);
 		}
-		unregisterUdf(udfName + ".lua");
+		unregisterUdf(queryName + ".lua");
 	}
 
-	public QueryFields addUdf(String udfName, String query) {
+	/**
+	 * Save and register query with query name
+	 * @param queryName - name of the query
+	 * @param query - SQL query
+	 * @return - Query fields data structure
+	 */
+	public QueryFields addUdf(String queryName, String query) {
+		QueryFields queryFields = getQueryFiels(query);
+
+		if (queryFields != null) {
+			String code = CodeGenerator.generateCode(queryFields);
+			log.info("Lua code: {}", code);
+
+			saveUdfFile(queryName, code);
+			registerUdf(queryName);
+		}
+		return queryFields;
+
+	}
+
+	protected QueryFields getQueryFiels(String query){
 		QueryFields queryFields;
 		try {
 			queryFields = QueryParser.parseQuery(query);
@@ -47,16 +82,7 @@ public class QueryUtils {
 			log.error(e.getMessage());
 			return null;
 		}
-
-		if (queryFields != null) {
-			String code = CodeGenerator.generateCode(queryFields);
-			log.info("Lua code: {}", code);
-
-			saveUdfFile(udfName, code);
-			registerUdf(udfName);
-		}
 		return queryFields;
-
 	}
 
 	private void registerUdf(String udfName) {
@@ -77,7 +103,10 @@ public class QueryUtils {
 		log.info("Creating file: {}", clientUdfPath);
 		File luaFile = new File(clientUdfPath);
 		if (luaFile.getParentFile() != null) {
-			luaFile.getParentFile().mkdirs();
+			boolean wasCreated = luaFile.getParentFile().mkdirs();
+			if(wasCreated){
+				log.info("Parent directory for UDFs was created.");
+			}
 		}
 
 		PrintWriter printWriter = null;

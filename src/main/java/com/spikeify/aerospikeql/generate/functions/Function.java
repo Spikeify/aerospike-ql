@@ -9,18 +9,18 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 16/07/15.
-
+ *
  * abstract class defines common fields and methods for other lua functions.
  */
-public class Function {
-	protected final String luaSep = ".."; //LUA string concatenation
-	protected String code; //code for a function body
-	protected String functionName;
-	protected String nameArg1; //first argument for a function
-	protected String nameArg2;
-	protected String nameArg3;
-	protected String streamOperation; //filter, map, aggregate or reduce
-	protected int level; //code indentation
+class Function {
+	final String luaSep = ".."; //LUA string concatenation
+	String code; //code for a function body
+	String functionName;
+	String nameArg1; //first argument for a function
+	String nameArg2;
+	String nameArg3;
+	String streamOperation; //filter, map, aggregate or reduce
+	int level; //code indentation
 	private String header; // local function functionName(arg1)
 	private String footer; // end
 	private String streamArg; //argument for a stream operation
@@ -37,16 +37,16 @@ public class Function {
 		}
 	}
 
-	public String getStreamOperation1Arg() {
+	private String getStreamOperation1Arg() {
 		return " : " + streamOperation + "(" + functionName + ")";
 	}
 
-	public String getStreamOperation2Arg() {
+	private String getStreamOperation2Arg() {
 		return " : " + streamOperation + "(" + streamArg + ", " + functionName + ")";
 	}
 
 
-	public void setSignature0Arg() {
+	void setSignature0Arg() {
 		String tabs = getTabs(level);
 		String code = "";
 
@@ -60,7 +60,7 @@ public class Function {
 		setFooter(tabs + "end\n\n");
 	}
 
-	public void setSignature1Arg() {
+	void setSignature1Arg() {
 		String tabs = getTabs(level);
 		String code = "";
 
@@ -74,7 +74,7 @@ public class Function {
 		setFooter(tabs + "end\n\n");
 	}
 
-	public void setSignature2Arg() {
+	void setSignature2Arg() {
 		String tabs = getTabs(level);
 		String code = "";
 
@@ -88,7 +88,7 @@ public class Function {
 		setFooter(tabs + "end\n\n");
 	}
 
-	public void setSignature3Arg() {
+	void setSignature3Arg() {
 		String tabs = getTabs(level);
 		String code = "";
 
@@ -106,7 +106,7 @@ public class Function {
 		return header;
 	}
 
-	public void setHeader(String header) {
+	private void setHeader(String header) {
 		this.header = header;
 	}
 
@@ -114,21 +114,22 @@ public class Function {
 		return footer;
 	}
 
-	public void setFooter(String footer) {
+	private void setFooter(String footer) {
 		this.footer = footer;
 	}
 
-	public void setStreamArg(String streamArg) {
+	void setStreamArg(String streamArg) {
 		this.streamArg = streamArg;
 	}
 
 
 	/**
 	 * Create an indentation with tabs
+	 *
 	 * @param level - level of intendation
 	 * @return - string with tab intendations
 	 */
-	protected String getTabs(int level) {
+	String getTabs(int level) {
 		String tabs = "";
 		for (int i = 0; i < level; i++)
 			tabs += "\t";
@@ -314,7 +315,7 @@ public class Function {
 		return statement;
 	}
 
-	public String processField(String field) {
+	String processField(String field) {
 		for (String recordFieldTransformation : Definitions.recordFieldTransformations) {
 			field = field.replaceAll("(?i)(" + recordFieldTransformation + ")\\(\\)", "$1\\(" + nameArg1 + "\\)");
 		}

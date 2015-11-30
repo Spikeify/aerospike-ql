@@ -6,12 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-/**
- * Created by sasa on 18/08/15.
-
- * parses runtime condition that is injected instead of condition()
- */
-public class ConditionProcessor {
+class ConditionProcessor {
 
 	public String process(String condition) {
 		Map<String, String> replaceQuotesMapping = new HashMap<>();
@@ -24,29 +19,29 @@ public class ConditionProcessor {
 
 	public static class Builder {
 
-		private Filter fc = Filter.factory(null);
+		private final Filter fc = Filter.factory(null);
 		private String condition;
 
 		public Builder(String condition) {
 			this.condition = condition;
 		}
 
-		protected Builder preProcessStatementQuotes(Map<String, String> replaceQuotesMapping) {
+		Builder preProcessStatementQuotes(Map<String, String> replaceQuotesMapping) {
 			this.condition = fc.preProcessStatementQuotes(replaceQuotesMapping, condition);
 			return this;
 		}
 
-		protected Builder parseStatement() {
+		Builder parseStatement() {
 			this.condition = fc.parseStatement(condition, new HashSet<String>());
 			return this;
 		}
 
-		protected Builder postProcessStatementQuotes(Map<String, String> replaceQuotesMapping) {
+		Builder postProcessStatementQuotes(Map<String, String> replaceQuotesMapping) {
 			this.condition = fc.postProcessStatementQuotes(replaceQuotesMapping, condition);
 			return this;
 		}
 
-		protected String build() {
+		String build() {
 			return condition != null ? condition : "true";
 		}
 

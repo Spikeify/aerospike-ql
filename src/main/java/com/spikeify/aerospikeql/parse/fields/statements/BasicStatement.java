@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.parse.fields.statements;
 
 /**
  * Created by roman on 09/08/15.
-
+ *
  * Basic field is a field in select statements. E.g. select timestamp
  */
 public class BasicStatement implements Statement {
@@ -11,7 +11,7 @@ public class BasicStatement implements Statement {
 	private final String field;
 	private final boolean nested;
 
-	public BasicStatement(String alias, String field, boolean nested) {
+	private BasicStatement(String alias, String field, boolean nested) {
 		this.alias = alias;
 		this.field = field;
 		this.nested = nested;
@@ -20,11 +20,6 @@ public class BasicStatement implements Statement {
 	@Override
 	public String getAlias() {
 		return alias;
-	}
-
-	@Override
-	public String getOperation() {
-		return "";
 	}
 
 	public String getField() {

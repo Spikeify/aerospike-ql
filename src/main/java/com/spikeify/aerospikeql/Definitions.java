@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by roman on 17/07/15.
-
+ *
  * Definitions contains constants and function names.
  */
 public class Definitions {
@@ -48,7 +48,7 @@ public class Definitions {
 	}};
 
 	//functions extract a time unit from a timestamp
-	public static final List<String> singleFieldTransformationsUnitExtraction = new ArrayList<String>() {
+	private static final List<String> singleFieldTransformationsUnitExtraction = new ArrayList<String>() {
 		{
 			add("SECOND");
 			add("MINUTE");
@@ -77,10 +77,11 @@ public class Definitions {
 		addAll(singleFieldTransformationsUnitRemove);
 	}};
 
-	public static final List<String> doubleFieldTransformations = new ArrayList<String>() {{
+	private static final List<String> doubleFieldTransformations = new ArrayList<String>() {{
 		add("DATEDIFF_MS");
 		add("DATEDIFF");
 		add("MAP_RETRIEVE");
+		add("MAP_CONTAINS");
 		add("LIST_CONTAINS");
 		add("LIST_MATCH");
 		add("LIST_RETRIEVE");
@@ -138,7 +139,7 @@ public class Definitions {
 //		put("YEAR", "31560000000");
 	}};
 
-	public static final Set<String> luaReservedWords = new HashSet<String>() {{
+	private static final Set<String> luaReservedWords = new HashSet<String>() {{
 		add("and");
 		add("break");
 		add("do");
@@ -172,10 +173,10 @@ public class Definitions {
 		addAll(luaReservedWords);
 	}};
 
-	public static Pattern getPattern(List<String> fields) {
+	public static Pattern getAggregationsPattern() {
 		String regex = "";
 
-		for (String field : fields) {
+		for (String field : aggregations) {
 			regex += "(^" + field + ")\\((.+)\\)|";
 		}
 		regex = regex.substring(0, regex.length() - 1);

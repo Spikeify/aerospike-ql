@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.parse.fields.statements;
 
 /**
  * Created by roman on 03/08/15.
-
+ *
  * AggregationStatement is a field in select statements that aggregates a field. E.g. select sum(timestamp)
  */
 public class AggregationStatement implements Statement {
@@ -14,7 +14,7 @@ public class AggregationStatement implements Statement {
 	private final String isTrue;
 	private final String isFalse;
 
-	public AggregationStatement(String alias, String operation, String condition, String isTrue, String isFalse, String field) {
+	private AggregationStatement(String alias, String operation, String condition, String isTrue, String isFalse, String field) {
 		this.alias = alias;
 		this.operation = operation;
 		this.condition = condition == null ? null : condition.replace("AND", "and").replace("OR", "or").replaceAll("(?i)NULL", "nil");

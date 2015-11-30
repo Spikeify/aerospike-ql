@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Created by roman on 07/08/15.
-
+ *
  * HavingField is used to parse conditions of having field
  */
 public class HavingField {

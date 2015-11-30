@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql.generate.functions;
 
 /**
  * Created by roman on 16/07/15.
-
+ *
  * Top level defines main function that wraps all other function in lua script.
  */
 public class TopLevel extends Function {
@@ -22,7 +22,7 @@ public class TopLevel extends Function {
 		return topLevel;
 	}
 
-	public void setFunction() {
+	private void setFunction() {
 		setSignature3Arg();
 	}
 

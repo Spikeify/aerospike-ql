@@ -2,9 +2,8 @@ package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.AerospikeQlService;
-import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
-import com.spikeify.annotations.UserKey;
+import com.spikeify.aerospikeql.entities.Entity1;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,42 +17,41 @@ import static org.junit.Assert.assertEquals;
 
 public class OrderFunctionTest {
 
-	Spikeify sfy;
-	AerospikeQlService aerospikeQlService;
+	private Spikeify sfy;
+	private AerospikeQlService aerospikeQlService;
 
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp(){
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
-		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		aerospikeQlService = new AerospikeQlService(sfy);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	@After
 	public void tearDown() {
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	private void createSet(int numRecords) {
-		Entity entity;
+		Entity1 Entity1;
 		for (int i = 1; i < numRecords + 1; i++) {
-			entity = new Entity();
-			entity.key = String.valueOf(i);
-			entity.value = i;
-			entity.value2 = i + 1;
-			entity.cluster = i % 4;
-			sfy.create(entity).now();
+			Entity1 = new Entity1();
+			Entity1.key = String.valueOf(i);
+			Entity1.value = i;
+			Entity1.value2 = i + 1;
+			Entity1.cluster = i % 4;
+			sfy.create(Entity1).now();
 		}
 
 		int i = numRecords + 1;
-		entity = new Entity();
-		entity.key = String.valueOf(i);
-		entity.value = null;
-		entity.value2 = i + 1;
-		entity.cluster = null;
-		sfy.create(entity).now();
+		Entity1 = new Entity1();
+		Entity1.key = String.valueOf(i);
+		Entity1.value = null;
+		Entity1.value2 = i + 1;
+		Entity1.cluster = null;
+		sfy.create(Entity1).now();
 	}
 
 	@Test
@@ -63,7 +61,7 @@ public class OrderFunctionTest {
 						"value, " +
 						"value2, " +
 						"cluster " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"order by value desc";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -86,7 +84,7 @@ public class OrderFunctionTest {
 						"value, " +
 						"value2, " +
 						"cluster " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"order by value asc";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -109,7 +107,7 @@ public class OrderFunctionTest {
 						"value, " +
 						"value2, " +
 						"cluster " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"order by value asc, cluster";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -132,7 +130,7 @@ public class OrderFunctionTest {
 						"value, " +
 						"value2, " +
 						"cluster " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"order by pk asc";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -158,7 +156,7 @@ public class OrderFunctionTest {
 						"value, " +
 						"value2, " +
 						"cluster " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"order by pk desc";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -184,7 +182,7 @@ public class OrderFunctionTest {
 						"value, " +
 						"value2, " +
 						"cluster " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"order by pk desc, value";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -202,18 +200,6 @@ public class OrderFunctionTest {
 			assertEquals(strings.get(counter++), map.get("pk"));
 		}
 	}
-
-	private class Entity {
-		@UserKey
-		public String key;
-
-		public Integer value;
-
-		public Integer value2;
-
-		public Integer cluster;
-
-	}
-
+	
 
 }

@@ -2,9 +2,8 @@ package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.AerospikeQlService;
-import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
-import com.spikeify.annotations.UserKey;
+import com.spikeify.aerospikeql.entities.Entity1;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,27 +15,26 @@ import static junit.framework.TestCase.assertEquals;
 
 public class HavingFunctionTest {
 
-	Spikeify sfy;
-	AerospikeQlService aerospikeQlService;
+	private Spikeify sfy;
+	private AerospikeQlService aerospikeQlService;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp(){
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
-		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		aerospikeQlService = new AerospikeQlService(sfy);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	@After
 	public void tearDown() {
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	private void createSet(int numRecords) {
-		Entity entity;
+		Entity1 entity;
 		for (int i = 1; i < numRecords + 1; i++) {
-			entity = new Entity();
+			entity = new Entity1();
 			entity.key = String.valueOf(i);
 			entity.value = i;
 			entity.value2 = i + 1;
@@ -45,7 +43,7 @@ public class HavingFunctionTest {
 		}
 
 		int i = numRecords + 2;
-		entity = new Entity();
+		entity = new Entity1();
 		entity.key = String.valueOf(i);
 		entity.value = null;
 		entity.value2 = i + 1;
@@ -62,7 +60,7 @@ public class HavingFunctionTest {
 						"min(value) as minValue," +
 						"max(value) as maxValue," +
 						"count(*) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"group by cluster " +
 						"having avgValue > 50 " +
 						"order by cluster asc";
@@ -94,7 +92,7 @@ public class HavingFunctionTest {
 						"min(value) as minValue," +
 						"max(value) as maxValue," +
 						"count(*) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"group by cluster " +
 						"having avgValue > 50 and maxValue = 99";
 
@@ -107,17 +105,6 @@ public class HavingFunctionTest {
 		assertEquals(99L, resultsList.get(0).get("maxValue"));
 		assertEquals(25L, resultsList.get(0).get("counter"));
 	}
-
-	private class Entity {
-		@UserKey
-		public String key;
-
-		public Integer value;
-
-		public Integer value2;
-
-		public Integer cluster;
-
-	}
+	
 
 }

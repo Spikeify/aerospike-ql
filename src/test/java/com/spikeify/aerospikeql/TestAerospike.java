@@ -16,12 +16,11 @@ import java.util.Map;
  */
 public class TestAerospike {
 
-	public static final String DEFAULT_NAMESPACE = "test";
-
-	public static final String DEFAULT_HOST = "127.0.0.1";
+	private static final String DEFAULT_NAMESPACE = "test";
+	private static final String DEFAULT_HOST = "127.0.0.1";
 	private static final Integer DEFAULT_PORT = 3000;
 
-	final Logger log = LoggerFactory.getLogger(TestAerospike.class);
+	private final Logger log = LoggerFactory.getLogger(TestAerospike.class);
 
 
 	/**
@@ -55,4 +54,7 @@ public class TestAerospike {
 		return SpikeifyService.sfy();
 	}
 
+	public static String getDefaultNamespace() {
+		return DEFAULT_NAMESPACE;
+	}
 }

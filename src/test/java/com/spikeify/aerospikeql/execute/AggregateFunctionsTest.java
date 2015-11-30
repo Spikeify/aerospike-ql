@@ -2,9 +2,8 @@ package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.AerospikeQlService;
-import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
-import com.spikeify.annotations.UserKey;
+import com.spikeify.aerospikeql.entities.Entity1;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,27 +15,26 @@ import static org.junit.Assert.assertEquals;
 
 public class AggregateFunctionsTest {
 
-	Spikeify sfy;
-	AerospikeQlService aerospikeQlService;
+	private Spikeify sfy;
+	private AerospikeQlService aerospikeQlService;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp(){
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
-		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		aerospikeQlService = new AerospikeQlService(sfy);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	@After
 	public void tearDown() {
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	private void createSet(int numRecords) {
-		Entity entity;
+		Entity1 entity;
 		for (int i = 1; i < numRecords + 1; i++) {
-			entity = new Entity();
+			entity = new Entity1();
 			entity.key = String.valueOf(i);
 			entity.value = i;
 			entity.value2 = i + 1;
@@ -45,7 +43,7 @@ public class AggregateFunctionsTest {
 		}
 
 		int i = numRecords + 2;
-		entity = new Entity();
+		entity = new Entity1();
 		entity.key = String.valueOf(i);
 		entity.value = null;
 		entity.value2 = i + 1;
@@ -56,7 +54,7 @@ public class AggregateFunctionsTest {
 	@Test
 	public void testCount() throws Exception {
 		createSet(100);
-		String query = "select count(1) as counter1, count(*) as counter2  from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select count(1) as counter1, count(*) as counter2  from " + TestAerospike.getDefaultNamespace() + ".Entity1";
 
 		List<Map<String, Object>> resultList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(101L, resultList.get(0).get("counter1"));
@@ -66,7 +64,7 @@ public class AggregateFunctionsTest {
 	@Test
 	public void testCountDistinct() throws Exception {
 		createSet(100);
-		String query = "select count(distinct cluster) as counter from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+		String query = "select count(distinct cluster) as counter from " + TestAerospike.getDefaultNamespace() + ".Entity1";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(4L, resultsList.get(0).get("counter"));
@@ -80,7 +78,7 @@ public class AggregateFunctionsTest {
 						"min(value) as minValue," +
 						"max(value) as maxValue," +
 						"count(*) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(true, resultsList.size() == 1);
@@ -99,7 +97,7 @@ public class AggregateFunctionsTest {
 						"min(case when value < 50 then value end) as minValue," +
 						"max(case when value < 50 then value end) as maxValue," +
 						"count(case when value < 50 then value end) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(true, resultsList.size() == 1);
@@ -118,7 +116,7 @@ public class AggregateFunctionsTest {
 						"min(case when value < 50 then value else 0 end) as minValue," +
 						"max(case when value < 50 then value else 0 end) as maxValue," +
 						"count(case when value < 50 then value else 0 end) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity";
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 		assertEquals(true, resultsList.size() == 1);
@@ -138,7 +136,7 @@ public class AggregateFunctionsTest {
 						"min(value) as minValue," +
 						"max(value) as maxValue," +
 						"count(*) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"group by cluster " +
 						"order by cluster asc";
 
@@ -180,8 +178,6 @@ public class AggregateFunctionsTest {
 		assertEquals(1L, resultsList.get(4).get("counter"));
 
 
-
-
 	}
 
 	@Test
@@ -193,7 +189,7 @@ public class AggregateFunctionsTest {
 						"min(case when value < 50 then value end) as minValue," +
 						"max(case when value < 50 then value end) as maxValue," +
 						"count(case when value < 50 then value end) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"group by cluster " +
 						"order by cluster asc";
 
@@ -245,7 +241,7 @@ public class AggregateFunctionsTest {
 						"min(case when value < 50 then value else 0 end) as minValue," +
 						"max(case when value < 50 then value else 0 end) as maxValue," +
 						"count(case when value < 50 then value else 0 end) as counter " +
-						"from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"group by cluster " +
 						"order by cluster asc";
 
@@ -288,17 +284,4 @@ public class AggregateFunctionsTest {
 
 
 	}
-
-	private class Entity {
-		@UserKey
-		public String key;
-
-		public Integer value;
-
-		public Integer value2;
-
-		public Integer cluster;
-
-	}
-
 }

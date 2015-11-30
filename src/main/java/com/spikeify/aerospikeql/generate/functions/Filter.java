@@ -7,6 +7,7 @@ import java.util.HashSet;
 
 /**
  * Created by roman on 16/07/15.
+ *
  * Logic for filter code in lua script
  */
 public class Filter extends Function {

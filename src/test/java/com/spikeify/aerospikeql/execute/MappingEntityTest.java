@@ -2,9 +2,8 @@ package com.spikeify.aerospikeql.execute;
 
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.AerospikeQlService;
-import com.spikeify.aerospikeql.QueryUtils;
 import com.spikeify.aerospikeql.TestAerospike;
-import com.spikeify.annotations.UserKey;
+import com.spikeify.aerospikeql.entities.Entity1;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,30 +13,29 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class MapEntityTest {
+public class MappingEntityTest {
 
-	Spikeify sfy;
-	AerospikeQlService aerospikeQlService;
+	private Spikeify sfy;
+	private AerospikeQlService aerospikeQlService;
 
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp(){
 		TestAerospike testAerospike = new TestAerospike();
 		sfy = testAerospike.getSfy();
-		QueryUtils queryUtils = new QueryUtils(sfy, "udf/");
-		aerospikeQlService = new AerospikeQlService(sfy, queryUtils);
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		aerospikeQlService = new AerospikeQlService(sfy);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	@After
 	public void tearDown() {
-		sfy.truncateNamespace(TestAerospike.DEFAULT_NAMESPACE);
+		sfy.truncateNamespace(TestAerospike.getDefaultNamespace());
 	}
 
 	private void createSet(int numRecords) {
-		Entity entity;
+		Entity1 entity;
 		for (int i = 1; i < numRecords + 1; i++) {
-			entity = new Entity();
+			entity = new Entity1();
 			entity.key = String.valueOf(i);
 			entity.value = i;
 			entity.value2 = i + 1;
@@ -46,7 +44,7 @@ public class MapEntityTest {
 		}
 
 		int i = numRecords + 2;
-		entity = new Entity();
+		entity = new Entity1();
 		entity.key = String.valueOf(i);
 		entity.value = null;
 		entity.value2 = i + 1;
@@ -54,28 +52,15 @@ public class MapEntityTest {
 		sfy.create(entity).now();
 	}
 
-	public static class Entity {
-
-		@UserKey
-		public String key;
-		public Integer value;
-		public Integer value2;
-		public Integer cluster;
-
-		public Entity() {
-		}
-
-	}
-
 	@Test
 	public void testMapEntity() throws Exception {
 		createSet(100);
-		String query = "select * from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity order by value2";
+		String query = "select * from " + TestAerospike.getDefaultNamespace() + ".Entity1 order by value2";
 
-		List<Entity> resultsList = aerospikeQlService.execAdhoc(Entity.class, query).now();
+		List<Entity1> resultsList = aerospikeQlService.execAdhoc(Entity1.class, query).now();
 		assertEquals(101, resultsList.size());
 		Integer count = 2;
-		for (Entity entity : resultsList) {
+		for (Entity1 entity : resultsList) {
 			if (count < 101) {
 				assertEquals(count++, entity.value2);
 			}
@@ -87,7 +72,7 @@ public class MapEntityTest {
 	public void testMapEntityAdditionalField() throws Exception {
 		createSet(100);
 		String query = "select cluster, " +
-						"avg(value) as avgValue from " + TestAerospike.DEFAULT_NAMESPACE + ".Entity " +
+						"avg(value) as avgValue from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
 						"group by cluster";
 
 		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
@@ -95,7 +80,4 @@ public class MapEntityTest {
 
 
 	}
-
-
-
 }
