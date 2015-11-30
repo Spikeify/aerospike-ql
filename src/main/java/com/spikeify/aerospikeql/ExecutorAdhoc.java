@@ -9,7 +9,7 @@ import com.spikeify.ClassMapper;
 import com.spikeify.FieldMapper;
 import com.spikeify.MapperUtils;
 import com.spikeify.Spikeify;
-import com.spikeify.aerospikeql.execute.Diagnostics;
+import com.spikeify.aerospikeql.execute.Profile;
 import com.spikeify.aerospikeql.execute.Retrieve;
 import com.spikeify.aerospikeql.parse.QueryFields;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 	final Spikeify sfy;
 	final QueryUtils queryUtils;
 	QueryFields queryFields;
-	Diagnostics diagnostics;
+	Profile profile;
 	private final Class<T> tClass;
 	String query;
 	String condition;
@@ -167,7 +167,7 @@ class ExecutorAdhoc<T> implements Executor<T> {
 				ResultSet rs = sfy.getClient().queryAggregate(queryPolicy, statement, queryName, "main", Value.get(currentTimeMillis), Value.get(conditionInjection)); //pass parameters to lua script
 				Retrieve retrieveResults = new Retrieve(queryFields, rs, currentTimeMillis);
 				List<Map<String, Object>> resultList = retrieveResults.retrieve();
-				diagnostics = retrieveResults.getDiagnostics();
+				profile = retrieveResults.getProfile();
 
 				queryUtils.removeUdf(queryName);
 				return resultList;
@@ -267,8 +267,8 @@ class ExecutorAdhoc<T> implements Executor<T> {
 
 
 	@Override
-	public Diagnostics getDiagnostics() {
-		return diagnostics;
+	public Profile getProfile() {
+		return profile;
 	}
 
 	private class EntityMetaData {

@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class DiagnosticsTests {
+public class ProfileTests {
 
 	private Spikeify sfy;
 	private AerospikeQlService aerospikeQlService;
@@ -52,22 +52,22 @@ public class DiagnosticsTests {
 	}
 
 	@Test
-	public void testDiagWithCount() throws Exception {
+	public void testProfileWithCount() throws Exception {
 		createSet(100);
 		String query = "select count(1) as counter1, count(*) as counter2  from " + TestAerospike.getDefaultNamespace() + ".Entity1";
 
 		Executor<Map<String, Object>> executor = aerospikeQlService.execAdhoc(query);
 		executor.now();
 
-		Diagnostics diagnostics = executor.getDiagnostics();
-		assertEquals(0L, diagnostics.getColumnsQueried());
-		assertEquals(1L, diagnostics.getRowsRetrieved());
-		assertEquals(101L, diagnostics.getRowsQueried());
+		Profile profile = executor.getProfile();
+		assertEquals(0L, profile.getColumnsQueried());
+		assertEquals(1L, profile.getRowsRetrieved());
+		assertEquals(101L, profile.getRowsQueried());
 
 	}
 
 	@Test
-	public void testDiagWithAggs() throws Exception {
+	public void testProfileWithAggs() throws Exception {
 		createSet(100);
 		String query = "select sum(value) as sumValue, " +
 						"avg(value) as avgValue, " +
@@ -79,14 +79,14 @@ public class DiagnosticsTests {
 		Executor<Map<String, Object>> executor = aerospikeQlService.execAdhoc(query);
 		executor.now();
 
-		Diagnostics diagnostics = executor.getDiagnostics();
-		assertEquals(1L, diagnostics.getColumnsQueried());
-		assertEquals(1L, diagnostics.getRowsRetrieved());
-		assertEquals(101L, diagnostics.getRowsQueried());
+		Profile profile = executor.getProfile();
+		assertEquals(1L, profile.getColumnsQueried());
+		assertEquals(1L, profile.getRowsRetrieved());
+		assertEquals(101L, profile.getRowsQueried());
 	}
 
 	@Test
-	public void testDiagWithHaving1() throws Exception {
+	public void testProfileWithHaving1() throws Exception {
 		createSet(100);
 		String query = "select cluster," +
 						"sum(value) as sumValue, " +
@@ -101,10 +101,10 @@ public class DiagnosticsTests {
 		Executor<Map<String, Object>> executor = aerospikeQlService.execAdhoc(query);
 		executor.now();
 
-		Diagnostics diagnostics = executor.getDiagnostics();
-		assertEquals(2L, diagnostics.getColumnsQueried());
-		assertEquals(1L, diagnostics.getRowsRetrieved());
-		assertEquals(101L, diagnostics.getRowsQueried());
+		Profile profile = executor.getProfile();
+		assertEquals(2L, profile.getColumnsQueried());
+		assertEquals(1L, profile.getRowsRetrieved());
+		assertEquals(101L, profile.getRowsQueried());
 	}
 
 }

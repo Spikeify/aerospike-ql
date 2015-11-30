@@ -8,7 +8,6 @@ import com.spikeify.aerospikeql.execute.Retrieve;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
 	private String queryName;
@@ -50,7 +49,7 @@ class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
 				ResultSet rs = sfy.getClient().queryAggregate(queryPolicy, statement, queryName, "main", Value.get(currentTimeMillis), Value.get(conditionInjection)); //pass parameters to lua script
 				Retrieve retrieveResults = new Retrieve(queryFields, rs, currentTimeMillis);
 				List<Map<String, Object>> resultList = retrieveResults.retrieve();
-				diagnostics = retrieveResults.getDiagnostics();
+				profile = retrieveResults.getProfile();
 				return resultList;
 			}
 		}

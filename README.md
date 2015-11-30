@@ -42,7 +42,13 @@ aerospike-ql supports adhoc and static queries. Adhoc query API saves LUA code l
     AerospikeQlService aerospikeQlService = new AerospikeQlService(sfy);
 
 ### Run adhoc query   
-    String query = "select cluster, sum(value) as sumValue, min(value) as minValue, count(*) as counter from defaultNamespace.Entity group by cluster order by cluster";
+    String query = "select cluster, 
+                        sum(value) as sumValue, 
+                        min(value) as minValue, 
+                        count(*) as counter 
+                    from defaultNamespace.Entity 
+                    group by cluster 
+                    order by cluster";
     List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 ### Run typed adhoc query
@@ -60,11 +66,19 @@ Typed queries can be only used with select * statement. You can add filters (whe
 
     //execute query multiple times
     List<Map<String, Object>> resultList1 = aerospikeQlService.execStatic(query, queryName).now(); 
-    List<Map<String, Object>> resultList2 = aerospikeQlService.execStatic(query, queryName).now(); //execute query second time
+    List<Map<String, Object>> resultList2 = aerospikeQlService.execStatic(query, queryName).now();
 
     queryUtils.removeUdf(queryName); //remove and unregister query
-    
-    
+
+### Profile query execution
+    Executor<Map<String, Object>> executor = aerospikeQlService.execAdhoc(query);
+    executor.now();
+
+    Profile profile = executor.getProfile();
+    long columnsQueried = profile.getColumnsQueried();
+    long rowsRetrieved = profile.getRowsRetrieved();
+    long rowsQueried = profile.getRowsQueried();
+
 ##Function reference
 Read more about supported functions in the [aerospike-ql reference](https://docs.google.com/document/d/1ocEWvK1fKjJsUXK0m3XX-9hAnh5JMueypk5a846qLms/edit?usp=sharing).
     

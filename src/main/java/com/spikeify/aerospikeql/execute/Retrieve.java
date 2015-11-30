@@ -21,7 +21,7 @@ public class Retrieve {
 	private final QueryFields queryFields;
 	private final ResultSet rs;
 	private final long overallStart;
-	private Diagnostics diagnostics;
+	private Profile profile;
 
 	public Retrieve(QueryFields queryFields, ResultSet rs, long overallStart) {
 		this.queryFields = queryFields;
@@ -87,7 +87,7 @@ public class Retrieve {
 
 		long overallEnd = System.currentTimeMillis();
 		long executionTime = overallEnd - overallStart;
-		this.diagnostics = new Diagnostics(overallStart, overallEnd, executionTime, (long) resultList.size(), new Long(diagnostic.get("count").toString()), (long) queryFields.getQueriedColumns().size());
+		this.profile = new Profile(overallStart, overallEnd, executionTime, (long) resultList.size(), new Long(diagnostic.get("count").toString()), (long) queryFields.getQueriedColumns().size());
 
 
 		return resultList;
@@ -235,7 +235,7 @@ public class Retrieve {
 		});
 	}
 
-	public Diagnostics getDiagnostics() {
-		return diagnostics;
+	public Profile getProfile() {
+		return profile;
 	}
 }

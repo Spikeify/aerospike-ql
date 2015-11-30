@@ -2,7 +2,7 @@ package com.spikeify.aerospikeql;
 
 import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.query.Filter;
-import com.spikeify.aerospikeql.execute.Diagnostics;
+import com.spikeify.aerospikeql.execute.Profile;
 
 import java.util.List;
 
@@ -44,11 +44,11 @@ public interface Executor<T> {
 	Executor<T> setCondition(String condition);
 
 	/**
-	 * Get diagnostic information of query execution
+	 * Get information about of query execution
 	 *
-	 * @return Diagnostics class
+	 * @return Profile class
 	 */
-	Diagnostics getDiagnostics();
+	Profile getProfile();
 
 	/**
 	 * Retrieve results of a query
