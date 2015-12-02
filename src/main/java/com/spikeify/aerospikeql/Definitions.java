@@ -72,6 +72,7 @@ public class Definitions {
 		add("DATE"); //convert timestamp to date
 		add("MSEC_TO_TIMESTAMP");
 		add("TIME");
+		add("BOOLEAN");
 		addAll(recordFieldTransformations);
 		addAll(singleFieldTransformationsUnitExtraction);
 		addAll(singleFieldTransformationsUnitRemove);

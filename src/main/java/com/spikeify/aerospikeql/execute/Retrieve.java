@@ -50,7 +50,7 @@ public class Retrieve {
 
 				} else { //results come in separated hash maps. This are queries without group by statements
 					diagnostic = basicResultsList(result, resultList, queryFields.getAverages(), distinctCounters);
-					if (queryFields.getLimit() == resultList.size()) {
+					if (!orderedResults && queryFields.getLimit() == resultList.size()) {
 						break;
 					}
 				}

@@ -78,6 +78,26 @@ public class OrderFunctionTest {
 	}
 
 	@Test
+	public void testSortOneFieldDescWithLimit() throws Exception {
+		createSet(100);
+		String query = "select primary_key() as pk," +
+				"value, " +
+				"value2, " +
+				"cluster " +
+				"from " + TestAerospike.getDefaultNamespace() + ".Entity1 " +
+				"order by value desc " +
+				"limit 10";
+
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+
+		assertEquals(10, resultsList.size());
+		Long sequence = 100L;
+		for (Map<String, Object> map : resultsList) {
+			assertEquals(sequence--, map.get("value"));
+		}
+	}
+
+	@Test
 	public void testSortOneFieldAsc() throws Exception {
 		createSet(100);
 		String query = "select primary_key() as pk," +

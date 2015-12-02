@@ -66,6 +66,8 @@ public class Transformation extends Function {
 				generatedCode = addDateLogic();
 			} else if (functionName.equalsIgnoreCase("TIME")) {
 				generatedCode = addTimeLogic();
+			} else if (functionName.equalsIgnoreCase("BOOLEAN")) {
+				generatedCode = addConvertBooleanLogic();
 			} else if (Definitions.singleFieldTransformationsUnitRemove.contains(functionName.toUpperCase())) {
 				generatedCode = removeMillisFromTimestamp(functionName);
 			} else if (functionName.equalsIgnoreCase(Definitions.primaryKey)) {
@@ -105,6 +107,13 @@ public class Transformation extends Function {
 			}
 		}
 		code = generatedCode;
+	}
+
+	private String addConvertBooleanLogic() {
+		String generatedCode = "";
+		String tabs1 = getTabs(level + 1);
+		generatedCode += tabs1 + "return " + nameArg1 + " and " + nameArg1 + " == 1\n";
+		return generatedCode;
 	}
 
 	private String addDigestLogic() {

@@ -3,6 +3,7 @@ package com.spikeify.aerospikeql.execute;
 import com.spikeify.Spikeify;
 import com.spikeify.aerospikeql.AerospikeQlService;
 import com.spikeify.aerospikeql.TestAerospike;
+import com.spikeify.aerospikeql.entities.BoolEntity;
 import com.spikeify.aerospikeql.entities.Entity1;
 import com.spikeify.aerospikeql.parse.ParserException;
 import org.junit.After;
@@ -50,6 +51,24 @@ public class BasicFunctionsTest {
 		entity.value = null;
 		entity.value2 = i + 1;
 		entity.cluster = null;
+		sfy.create(entity).now();
+	}
+
+	private void createSetBoolean(int numRecords) {
+		BoolEntity entity;
+		for (int i = 1; i < numRecords + 1; i++) {
+			entity = new BoolEntity();
+			entity.key = String.valueOf(i);
+			entity.value1 = i % 2 == 0;
+			entity.value2 = i % 2 == 1;
+			sfy.create(entity).now();
+		}
+
+		int i = numRecords + 2;
+		entity = new BoolEntity();
+		entity.key = String.valueOf(i);
+		entity.value1 = null;
+		entity.value2 = i % 2 == 1;
 		sfy.create(entity).now();
 	}
 
@@ -130,6 +149,35 @@ public class BasicFunctionsTest {
 		assertEquals(100, resultsList.size());
 		for (Map<String, Object> map : resultsList) {
 			assertEquals(4, map.size());
+		}
+	}
+
+	@Test
+	public void testSelectBooleanTrue() throws ParserException {
+		createSetBoolean(100);
+		String query = "select boolean(value1) as value1 " +
+				"from " + TestAerospike.getDefaultNamespace() + ".BoolEntity " +
+				"where boolean(value1) = true";
+
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(50, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
+			assertEquals(true, map.get("value1"));
+		}
+	}
+
+
+	@Test
+	public void testSelectBooleanFalse() throws ParserException {
+		createSetBoolean(100);
+		String query = "select boolean(value1) as value1 " +
+				"from " + TestAerospike.getDefaultNamespace() + ".BoolEntity " +
+				"where boolean(value1) = false";
+
+		List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
+		assertEquals(50, resultsList.size());
+		for (Map<String, Object> map : resultsList) {
+			assertEquals(false, map.get("value1"));
 		}
 	}
 

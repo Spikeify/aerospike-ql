@@ -147,7 +147,7 @@ class Function {
 		String[] fields = statement.split(Definitions.transformationOperatorsRegex(true)); //split a statements with positive lookahead. This means: "a, b, c".split(",") => ["a,", "b,", "c"]
 		String item = fields[0].trim();
 
-		if (item.equalsIgnoreCase("condition()")) {
+		if (item.equalsIgnoreCase("condition()") || item.equalsIgnoreCase("true") || item.equalsIgnoreCase("false")) {
 			if (fields.length > 1) {
 				return item + parseStatement(arrayToString(fields, 1), functions);
 			} else {
