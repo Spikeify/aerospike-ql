@@ -2,12 +2,14 @@
 
 SQL wrapper for Aerospike database.
 
-aerospike-ql is a SQL wrapper for Aerospike database. It transforms SQL query string to LUA code and executes it as Stream UDF on Aerospike database. It enables:
+aerospike-ql is a SQL wrapper for Aerospike database. It transforms SQL query to LUA code and executes it as Stream UDF on Aerospike database. It enables:
 
  - writing and executing SQL queries against Aerospike database,
- - maps database records to your Java objects or returns them as Map objects,
- - count, min, max, avg and sum aggregations with or without group by, 
- - custom functions for working with strings, lists, maps, dates etc.,
+ - maps database records to Java objects or returns them as Map objects,
+ - count, min, max, avg and sum aggregations, 
+ - group by, order by and limit operations,
+ - essential functions for working with strings, lists, maps, dates types in Aerospike database,
+ - inject custom conditions to LUA script,
  - monitoring query execution.   
 
 ##Query syntax
@@ -30,10 +32,13 @@ Simply include the aerospikeql-xx.jar lib in your project or add a maven depende
 
 
 ##Documentation
-aerospike-ql supports adhoc and static queries. Adhoc query API saves LUA code locally and on Aerospike servers, executes it and removes it. Static query API only executes LUA code, so code needs
-   to be generated and UDF registered in advance with QueryUtils API. 
+aerospike-ql supports adhoc and static queries:
 
-    
+ - adhoc query API saves LUA code locally and on Aerospike servers, executes it and removes it, 
+ - static query API only executes LUA code, so code needs to be generated and UDF registered in advance with QueryUtils API. 
+
+
+
 ## Basic Usage
 
 ### Getting AerospikeQlService instance
@@ -58,6 +63,8 @@ Typed queries can be only used with select * statement. You can add filters (whe
     List<Entity> resultsList = aerospikeQlService.execAdhoc(Entity.class, query).now();
 
 ### Run static query
+Static queries are intended to be used for frequent queries. Firstly, static query needs to registered on aerospike server. Then it can be executed multiple times. If query changes, it needs to be registered as new query. 
+
     QueryUtils queryUtils = new QueryUtils(sfy);
     String queryName = "countQuery";
     String query = "select count(1) as counter1, count(*) as counter2  from defaultNamespace.Entity";
