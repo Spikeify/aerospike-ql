@@ -88,6 +88,13 @@ Static queries are intended to be used for frequent queries. Firstly, static que
 
 ##Function reference
 Read more about supported functions in the [aerospike-ql reference](https://docs.google.com/document/d/1ocEWvK1fKjJsUXK0m3XX-9hAnh5JMueypk5a846qLms/edit?usp=sharing).
+
+## Release notes
+
+### version 0.1.3 (Released June 7, 2016)
+    - null checks for map_retrieve and map_contains functions,
+    - updated dependencies.
+    
     
 
     

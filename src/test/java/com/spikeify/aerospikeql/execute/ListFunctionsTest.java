@@ -43,14 +43,6 @@ public class ListFunctionsTest {
 		return stringList;
 	}
 
-	private List<String> generateStringListWith(String prefix, int size) {
-		List<String> stringList = new ArrayList<>();
-		for (int j = 0; j < size; j++) {
-			stringList.add(prefix + String.valueOf(j));
-		}
-		return stringList;
-	}
-
 	private void createSet(int size) {
 		ListEntity ListEntity;
 

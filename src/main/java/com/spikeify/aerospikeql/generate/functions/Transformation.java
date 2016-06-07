@@ -170,12 +170,13 @@ public class Transformation extends Function {
 		String tabs1 = getTabs(level + 1);
 		String tabs2 = getTabs(level + 2);
 		String tabs3 = getTabs(level + 3);
+		String tabs4 = getTabs(level + 4);
 		generatedCode += tabs1 + "if " + nameArg1 + " ~= nil then\n";
-		generatedCode += tabs1 + "for item in list.iterator(" + nameArg1 + ") do\n";
-		generatedCode += tabs2 + "if item == " + nameArg2 + " then\n";
-		generatedCode += tabs3 + "return item\n";
+		generatedCode += tabs2 + "for item in list.iterator(" + nameArg1 + ") do\n";
+		generatedCode += tabs3 + "if item == " + nameArg2 + " then\n";
+		generatedCode += tabs4 + "return item\n";
+		generatedCode += tabs3 + "end\n";
 		generatedCode += tabs2 + "end\n";
-		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "return nil\n";
 		return generatedCode;
@@ -186,12 +187,13 @@ public class Transformation extends Function {
 		String tabs1 = getTabs(level + 1);
 		String tabs2 = getTabs(level + 2);
 		String tabs3 = getTabs(level + 3);
+		String tabs4 = getTabs(level + 4);
 		generatedCode += tabs1 + "if " + nameArg1 + " ~= nil then\n";
-		generatedCode += tabs1 + "for item in list.iterator(" + nameArg1 + ") do\n";
-		generatedCode += tabs2 + "if item == " + nameArg2 + " then\n";
-		generatedCode += tabs3 + "return true\n";
+		generatedCode += tabs2 + "for item in list.iterator(" + nameArg1 + ") do\n";
+		generatedCode += tabs3 + "if item == " + nameArg2 + " then\n";
+		generatedCode += tabs4 + "return true\n";
+		generatedCode += tabs3 + "end\n";
 		generatedCode += tabs2 + "end\n";
-		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "return false\n";
 		return generatedCode;
@@ -202,12 +204,13 @@ public class Transformation extends Function {
 		String tabs1 = getTabs(level + 1);
 		String tabs2 = getTabs(level + 2);
 		String tabs3 = getTabs(level + 3);
+		String tabs4 = getTabs(level + 4);
 		generatedCode += tabs1 + "if " + nameArg1 + " ~= nil then\n";
-		generatedCode += tabs1 + "for item in list.iterator(" + nameArg1 + ") do\n";
-		generatedCode += tabs2 + "if item ~= nil and string.match(item, " + nameArg2 + ") then\n";
-		generatedCode += tabs3 + "return true\n";
+		generatedCode += tabs2 + "for item in list.iterator(" + nameArg1 + ") do\n";
+		generatedCode += tabs3 + "if item ~= nil and string.match(item, " + nameArg2 + ") then\n";
+		generatedCode += tabs4 + "return true\n";
+		generatedCode += tabs3 + "end\n";
 		generatedCode += tabs2 + "end\n";
-		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "end\n";
 		generatedCode += tabs1 + "return false\n";
 		return generatedCode;
@@ -393,14 +396,14 @@ public class Transformation extends Function {
 	private String addMapRetrieveLogic() {
 		String generatedCode = "";
 		String tabs = getTabs(level + 1);
-		generatedCode += tabs + "return " + nameArg1 + "[" + nameArg2 + "]\n";
+		generatedCode += tabs + "return " + nameArg1 + " and " + nameArg1 + "[" + nameArg2 + "]\n";
 		return generatedCode;
 	}
 
 	private String addMapContainsLogic() {
 		String generatedCode = "";
 		String tabs = getTabs(level + 1);
-		generatedCode += tabs + "return " + nameArg1 + "[" + nameArg2 + "] ~= nil\n";
+		generatedCode += tabs + "return " + nameArg1 + " and " + nameArg1 + "[" + nameArg2 + "] ~= nil\n";
 		return generatedCode;
 	}
 

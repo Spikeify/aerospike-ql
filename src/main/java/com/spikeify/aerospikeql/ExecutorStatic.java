@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 class ExecutorStatic<T> extends ExecutorAdhoc<T> implements Executor<T> {
-	private String queryName;
+	private final String queryName;
 
 	public ExecutorStatic(Spikeify sfy,
 	                      QueryUtils queryUtils,

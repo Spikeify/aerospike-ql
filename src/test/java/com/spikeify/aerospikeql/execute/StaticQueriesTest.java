@@ -56,7 +56,7 @@ public class StaticQueriesTest {
 	}
 
 	@Test
-	public void createRunStaticQuery() throws Exception {
+	public void createRunStaticQuery(){
 		createSet(100);
 		String queryName = "countQuery";
 		String query = "select count(1) as counter1, count(*) as counter2  from " + TestAerospike.getDefaultNamespace() + ".Entity1";

@@ -6,7 +6,7 @@
 
     <groupId>com.spikeify</groupId>
     <artifactId>aerospike-ql</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.2.1</version>
     <packaging>jar</packaging>
 
     <name>Aerospike-ql</name>
@@ -41,13 +41,13 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.encoding>UTF-8</project.encoding>
         <project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
-        <version.spikeify>0.2.15</version.spikeify>
-        <version.log4j>2.4.1</version.log4j>
-        <version.jsqlparser>0.9.4</version.jsqlparser>
-        <version.evalEx>1.1</version.evalEx>
-        <version.slf4j-api>1.7.13</version.slf4j-api>
+        <version.spikeify>0.2.33</version.spikeify>
+        <version.log4j>2.6</version.log4j>
+        <version.jsqlparser>0.9.5</version.jsqlparser>
+        <version.evalEx>1.2</version.evalEx>
+        <version.slf4j-api>1.7.21</version.slf4j-api>
         <version.junit>4.12</version.junit>
-        <version.joda-time>2.9.1</version.joda-time>
+        <version.joda-time>2.9.4</version.joda-time>
     </properties>
 
     <repositories>

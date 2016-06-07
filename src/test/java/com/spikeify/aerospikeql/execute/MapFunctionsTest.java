@@ -71,6 +71,24 @@ public class MapFunctionsTest {
 	}
 
 	@Test
+	public void testMapContainsNull() {
+		createSet(1, 5);
+		List<MapEntity> resultList = aerospikeQlService.execAdhoc(MapEntity.class, "select * from " + TestAerospike.getDefaultNamespace() + ".MapEntity where map_contains(value2, 'person1')").now();
+		assertEquals(0L, resultList.size());
+	}
+
+	@Test
+	public void testMapRetrieveNull() {
+		createSet(1, 5);
+		List<Map<String, Object>> resultList = aerospikeQlService.execAdhoc("select map_retrieve(value2, 'person1') as val1 from " + TestAerospike.getDefaultNamespace() + ".MapEntity order by val1 desc").now();
+		assertEquals(2L, resultList.size());
+
+		for (int i = 0; i < resultList.size(); i++) {
+			assertEquals(null, resultList.get(i).get("val1"));
+		}
+	}
+
+	@Test
 	public void testMapRetrieve1() {
 		createSet(100, 5);
 		List<Map<String, Object>> resultList = aerospikeQlService.execAdhoc("select map_retrieve(value1, 'person1') as val1 from " + TestAerospike.getDefaultNamespace() + ".MapEntity order by val1 desc").now();
