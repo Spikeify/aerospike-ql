@@ -91,7 +91,7 @@ Read more about supported functions in the [aerospike-ql reference](https://docs
 
 ## Release notes
 
-### version 0.1.3 (Released June 7, 2016)
+### version 0.1.2.1 (Released June 7, 2016)
     - null checks for map_retrieve and map_contains functions,
     - updated dependencies.
     
