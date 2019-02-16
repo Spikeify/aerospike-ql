@@ -1,4 +1,4 @@
-#aerospike-ql
+# aerospike-ql
 
 SQL wrapper for Aerospike database.
 
@@ -12,7 +12,8 @@ aerospike-ql is a SQL wrapper for Aerospike database. It transforms SQL query to
  - inject custom conditions to LUA script,
  - monitoring query execution.   
 
-##Query syntax
+## Query syntax
+
     SELECT expr1 [[AS] alias1] [, expr2 [[AS] alias2], ...]
     FROM namespace.set
     [WHERE condition]
@@ -21,7 +22,7 @@ aerospike-ql is a SQL wrapper for Aerospike database. It transforms SQL query to
     [ORDER BY field1|alias1 [DESC|ASC] [, field2|alias2 [DESC|ASC], ...]]
     [LIMIT n]
 
-##Setup
+## Setup
 Simply include the aerospikeql-xx.jar lib in your project or add a maven dependency:
 
     <dependency>
@@ -31,13 +32,12 @@ Simply include the aerospikeql-xx.jar lib in your project or add a maven depende
     </dependency>
 
 
-##Documentation
+## Dcumentation
+
 aerospike-ql supports adhoc and static queries:
 
  - adhoc query API saves LUA code locally and on Aerospike servers, executes it and removes it, 
  - static query API only executes LUA code, so code needs to be generated and UDF registered in advance with QueryUtils API. 
-
-
 
 ## Basic Usage
 
@@ -57,12 +57,14 @@ aerospike-ql supports adhoc and static queries:
     List<Map<String, Object>> resultsList = aerospikeQlService.execAdhoc(query).now();
 
 ### Run typed adhoc query
+
 Typed queries can be only used with select * statement. You can add filters (where) and ordering (order by) of results.
 
     String query = "select * from defaultNamespace.Entity where value > 10 order by value desc";
     List<Entity> resultsList = aerospikeQlService.execAdhoc(Entity.class, query).now();
 
 ### Run static query
+
 Static queries are intended to be used for frequent queries. Firstly, static query needs to registered on aerospike server. Then it can be executed multiple times. If query changes, it needs to be registered as new query. 
 
     QueryUtils queryUtils = new QueryUtils(sfy);
@@ -78,6 +80,7 @@ Static queries are intended to be used for frequent queries. Firstly, static que
     queryUtils.removeUdf(queryName); //remove and unregister query
 
 ### Profile query execution
+
     Executor<Map<String, Object>> executor = aerospikeQlService.execAdhoc(query);
     executor.now();
 
@@ -86,7 +89,8 @@ Static queries are intended to be used for frequent queries. Firstly, static que
     long rowsRetrieved = profile.getRowsRetrieved();
     long rowsQueried = profile.getRowsQueried();
 
-##Function reference
+## Function reference
+
 Read more about supported functions in the [aerospike-ql reference](https://docs.google.com/document/d/1ocEWvK1fKjJsUXK0m3XX-9hAnh5JMueypk5a846qLms/edit?usp=sharing).
 
 ## Release notes
@@ -94,9 +98,3 @@ Read more about supported functions in the [aerospike-ql reference](https://docs
 ### version 0.1.2.1 (Released June 7, 2016)
     - null checks for map_retrieve and map_contains functions,
     - updated dependencies.
-    
-    
-
-    
-    
-    
